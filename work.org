@@ -1,0 +1,14 @@
+* feature
+** TODO prefix url
+** TODO ask
+** TODO _i18n.conf
+** TODO excluding
+
+* 8-25
+** DONE 中文
+** DONE init ＋ include exclude ｛array｝
+** TODO server sync [page, test, widget?] | [po文件 custom.po xx.po] | 亚芹接口
+** DONE local sync
+
+* 8-26
+** TODO mz inspect --no-color -> tmp table to request

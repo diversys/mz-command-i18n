@@ -1,0 +1,8 @@
+*.bak
+config.js
+.git
+..*
+*~
+~ *
+.jshintrc
+*.swp
