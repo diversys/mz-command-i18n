@@ -21,6 +21,5 @@ module.exports = {
   needMappingDirs: [
     '/page/products'
   ],
-  syncsDomain: 'm.meizu.com',
-  syncsApi: 'http://i18n.meizu.com/download'
+  syncsDomain: 'm.meizu.com'
 };

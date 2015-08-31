@@ -6,7 +6,8 @@ var inquirer = require('inquirer'),
 
 const emptyDir = require('empty-dir');
 
-var Util = require('./util');
+var Util = require('./util'),
+    Syncl = require('./syncl');
 
 var allVersion = [];
 
@@ -157,7 +158,7 @@ var ask = function(){
     var toWriteAnswers = _.clone(answers, true);
     delete toWriteAnswers.needMapping;
     
-    fs.writeFileSync(config.i18nFile, JSON.stringify(toWriteAnswers, null, "  ") );
+    //fs.writeFileSync(config.i18nFile, JSON.stringify(toWriteAnswers, null, "  ") );
 
     if ( answers.needMapping ) {
       var mappingQuestions = [];
@@ -187,21 +188,22 @@ var ask = function(){
       });
       inquirer.prompt(mappingQuestions, function( mappingAnswers ) {
 
-        var i18nconfig = JSON.parse(fs.readFileSync(config.i18nFile, 'utf-8'));
+        //var i18nconfig = JSON.parse(fs.readFileSync(config.i18nFile, 'utf-8'));
         
-        i18nconfig.mapping = {};
+        toWriteAnswers.mapping = {};
         
         Object.keys(mappingAnswers).map(function(starPath){
           var prefix = starPath.split('.').slice(0, -1).join('/');
           var oldPath = starPath.split('.').join('/');
-          if ( !(starPath.split('.').slice(-1)[0] === mappingAnswers[starPath]) ) {
-            fis.util.copy(oldPath, path.join(prefix, mappingAnswers[starPath]));          
-            fis.util.del(oldPath);
-          }
-          i18nconfig.mapping[oldPath] = prefix + '/' + mappingAnswers[starPath];
+          // if ( !(starPath.split('.').slice(-1)[0] === mappingAnswers[starPath]) ) {
+          //   fis.util.copy(oldPath, path.join(prefix, mappingAnswers[starPath]));          
+          //   fis.util.del(oldPath);
+          // }
+          toWriteAnswers.mapping[oldPath] = prefix + '/' + mappingAnswers[starPath];
         });
         
-        fs.writeFileSync(config.i18nFile, JSON.stringify(i18nconfig, null, "  ") );
+        fs.writeFileSync(config.i18nFile, JSON.stringify(toWriteAnswers, null, "  ") );
+        Syncl();
       });
     }
   });
@@ -227,7 +229,12 @@ var replace = function(answers){
 
 var merge = function(targetPath){  
   var currentPath = process.cwd();
-  fis.util.copy(targetPath, currentPath, null, null);
+  var copyFiles = [
+    'fis-conf.js',
+  ];
+  copyFiles.map(function(file){
+    fis.util.copy(targetPath + '/' + file, currentPath + '/' + file, null, null);
+  });
 };
 
 module.exports = Init;

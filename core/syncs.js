@@ -40,38 +40,41 @@ var Syncs = function(){
 
 
 var runSync = function(){
-  var syncsApi;
-  try {
+
     var rootPath = Util.getProjectRoot();
     var ppkg = Util.readJSON(rootPath + '/package.json');
 
     if ( !ppkg.syncsApi ) {
       inquirer.prompt([{
         type: 'input',
-        name: 'syncApi',
+        name: 'syncsApi',
         message: '检测到你的项目没有配置文件同步api，请输入',
         validate: function(value) {
           if (value.trim() === '' || value === null) {
             return '输入一下呗！';
-          } else if (!/^http[sS]:\/\//.test(value)) {
+          } else if (!/^http[s]*:\/\//.test(value)) {
             return 'miss http://????????????';
           } else {
             return true;
           }
         }
       }], function(answer) {
+        console.log("answer = ", answer);
+
         syncsApi = answer.syncsApi;
-        syncServer();
         ppkg.syncsApi = syncsApi;
-        fs.writeFile(rootPath + '/package.json', JSON.stringify(ppkg, null, '  '), function(){});
+        console.log("ppkg = ", ppkg);
+        console.log(rootPath + '/package.json');
+
+        fs.writeFileSync(rootPath + '/package.json', JSON.stringify(ppkg, null, '  '));
+        syncServer();
+
       });
     } else {
-      syncsApi = syncsApi;
+      syncsApi = ppkg.syncsApi;
       syncServer();
     }
-  } catch (error) {
-    fis.log.error('找不到项目根目录，是不是走错地方了');
-  }
+
 };
 
 var syncServer = function(){
@@ -134,7 +137,6 @@ var syncServer = function(){
     });
   });
 
-
   //sync request start
   async.series(seriesPoRequest, function(err, rst){
     async.series(seriesRequest, function(err, rst){
@@ -142,8 +144,6 @@ var syncServer = function(){
     });
   });
 };
-
-
 
 var showRst = function(){
   console.log();
@@ -175,12 +175,9 @@ var updatePoFile = function(newContent, filePath){
   updateFile(poContent, filePath);
 };
 
-
-
 var requestServer = function(filePath, fileRelease, cb){
 
     var t = + new Date();
-
     request.post({
       url: syncsApi,
       form: {
@@ -191,6 +188,8 @@ var requestServer = function(filePath, fileRelease, cb){
         token: getToken(t)
       }
     }, function(err, httpResponse, body) {
+      console.log("syncsApi = ", syncsApi);
+      console.log("err = ", err);
 
 
       console.log("response ============================ ".red);
@@ -209,6 +208,7 @@ var requestServer = function(filePath, fileRelease, cb){
         return cb(true, body);
       }
     });
+
 };
 
 var checkValid = function(response){

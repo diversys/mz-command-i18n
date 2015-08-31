@@ -1,11 +1,16 @@
 var path = require('path'),
     globToRegExp = require('glob-to-regexp'),
+    walk = require('walk'),
     fs = require('fs');
 
 var Util = require('./util');
 
 var config = require('../config');
 
+var testDir = 'test';
+
+var syncTestErrN = 0,
+    syncTestSucN = 0;
 
 var parentPath = process.cwd().split('/').slice(0, -1).join('/');
 
@@ -49,17 +54,20 @@ var Syncl = function() {
       return function(){};
     }
   }();
+
+  excludeRegs.push(globToRegExp(parentPath + '/' + testDir));
   
   fis.util.copy(originPath, currentPath, includeRegs, excludeRegs);
   
   copyMapping();
+  copyTest(originPath, i18nConfig.namespace, function(){
+    setTimeout(function(){
+      stopProcess();
+      console.log();
+      fis.log.info('完成了骚年！');  
+    }, 100);  
+  });
   
-  
-  setTimeout(function(){
-    stopProcess();
-    console.log();
-    fis.log.info('完成了骚年！');  
-  }, 100);  
 };
 
 var processX = function(){
@@ -77,5 +85,38 @@ var processX = function(){
     conti = false;
   };
 };
+
+var copyTest= function(originPath, namespace, cb){
+  var walker = walk.walk(originPath + '/' + testDir, { followLinks: false });
+  var reg = new RegExp('=>(\\s\'\/)(.*\/)(\'\.)', 'g');
+  var currentPath = process.cwd();
+  walker.on("file", function(root, fileStat, next){
+    fs.readFile(path.resolve(root, fileStat.name), 'utf-8', function (err, data) {
+      syncTestSucN++;
+      var relativePath = root.split(originPath)[1];
+      var currentFile = '.' + relativePath + '/' + fileStat.name;
+      var newContent = data.replace(reg, function($0 ,$1, $2, $3){
+        return $1 + namespace + '/' + $2 + $3;
+      });
+      fs.writeFile(currentFile, newContent, function(){});
+      next();
+    });
+  });
+  walker.on("errors", function(root, nodeStatsArray, next){
+    syncTestErrN++;
+    next();
+  }); // plural
+  walker.on("end", function(){
+    cb();
+  });
+};
+
+
+
+var updateTestFile = function(){
+  
+};
+
+
 
 module.exports = Syncl;
