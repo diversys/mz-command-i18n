@@ -12,3 +12,7 @@
 
 * 8-26
 ** TODO mz inspect --no-color -> tmp table to request
+
+* 8-28
+** TODO syncs add /{{namespace}}
+** TODO test custom directy write

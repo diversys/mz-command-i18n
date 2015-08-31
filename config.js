@@ -1,13 +1,14 @@
-
 var i18nFile = '_i18n.json';
 
 module.exports = {
   i18nFile: i18nFile,
+  frameworkConfigFile: 'fis-conf.js',
   defaultExclude: [
-    '*/' + i18nFile,
+    '/' + i18nFile,
     '*.custom.*',
-    '*/fis-conf.js',
-    '*/server.conf'
+    '/fis-conf.js',
+    '/server.conf',
+    '/lang/*'
   ],
   defaultInclude: [
     '*'
@@ -21,5 +22,5 @@ module.exports = {
     '/page/products'
   ],
   syncsDomain: 'm.meizu.com',
-  syncsApi: 'http://'
+  syncsApi: 'http://i18n.meizu.com/download'
 };

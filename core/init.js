@@ -10,12 +10,10 @@ var Util = require('./util');
 
 var allVersion = [];
 
-//var needMappingDirs = [];
 
 var parentPath = process.cwd().split('/').slice(0, -1).join('/');
 
 var config = require('../config');
-
 
 var Init = function(config){
   if ( checkThisEmpty() ) {
@@ -32,9 +30,6 @@ var askToInit = function(){
   getAllVersion();
   ask();
 };
-
-
-
 
 var checkThisEmpty = function(){
   return emptyDir.sync('.');
@@ -54,19 +49,12 @@ var checkContinue = function(cb){
   });
 };
 
-
-
-
 var getAllVersion = function(){
   var parentPath = process.cwd().split('/').slice(0, -1).join('/');
   var filesname = fs.readdirSync(parentPath);
   //TODO: there has a bug( noknown undefined );
   allVersion = filterFile(filesname, parentPath);
 };
-
-
-
-
 
 //return dirs
 var filterFile = function(files, path) {
@@ -77,21 +65,15 @@ var filterFile = function(files, path) {
   });
 };
 
-
-
-
 var ask = function(){
   //not remove
-  console.log();
-  
+  console.log();  
   var answers = {};
-
   var needMapping = function(){
     return  function(){
       
     };
   };
-  
   var questions = [
     {
       type: 'input',
@@ -171,8 +153,11 @@ var ask = function(){
 
     answers.include = config.defaultInclude;
     answers.exclude = config.defaultExclude;
+
+    var toWriteAnswers = _.clone(answers, true);
+    delete toWriteAnswers.needMapping;
     
-    fs.writeFileSync(config.i18nFile, JSON.stringify(answers, null, "  ") );
+    fs.writeFileSync(config.i18nFile, JSON.stringify(toWriteAnswers, null, "  ") );
 
     if ( answers.needMapping ) {
       var mappingQuestions = [];
@@ -181,7 +166,7 @@ var ask = function(){
           mappingQuestions.push({
             type: 'input',
             name: dir.split('/').join('.').slice(1) + '.' + subdir,
-            message: 'Okeydokey，这个原始目录[ ' + subdir.green  + ' ]你想mapping成啥样？((留空则不mapping哦！))',
+            message: 'Okeydokey，这个原始目录[ ' + subdir.green  + ' ]你想mapping成啥样?((留空则不mapping哦!))',
             filter: function(value){
               value = value.trim();
               if(!value || value === '') {
@@ -203,18 +188,17 @@ var ask = function(){
       inquirer.prompt(mappingQuestions, function( mappingAnswers ) {
 
         var i18nconfig = JSON.parse(fs.readFileSync(config.i18nFile, 'utf-8'));
-        console.log("i18nconfig = ", i18nconfig);
         
         i18nconfig.mapping = {};
         
         Object.keys(mappingAnswers).map(function(starPath){
           var prefix = starPath.split('.').slice(0, -1).join('/');
           var oldPath = starPath.split('.').join('/');
-          if ( ! (starPath.split('.').slice(-1)[0] === mappingAnswers[starPath] ) ) {
+          if ( !(starPath.split('.').slice(-1)[0] === mappingAnswers[starPath]) ) {
             fis.util.copy(oldPath, path.join(prefix, mappingAnswers[starPath]));          
             fis.util.del(oldPath);
           }
-          i18nconfig.mapping[oldPath] = prefix + mappingAnswers[starPath];
+          i18nconfig.mapping[oldPath] = prefix + '/' + mappingAnswers[starPath];
         });
         
         fs.writeFileSync(config.i18nFile, JSON.stringify(i18nconfig, null, "  ") );
@@ -224,46 +208,26 @@ var ask = function(){
 };
 
 var replace = function(answers){
-  
-  var oldContent = fs.readFileSync('./fis-conf.js', 'utf-8');
-  
-  var nsreg = new RegExp('\'namespace\',\\s{0,1}\'.*\'');
-  var nsreg2 = new RegExp('"namespace",\\s{0,1}".*"');
-  
-  var upreg = new RegExp('\'urlprefix\',\\s{0,1}\'.*\'');
-  var upreg2 = new RegExp('"urlprefix",\\s{0,1}".*"');
-
-  var i18nreg = new RegExp('\'i18n\',\\s{0,1}\'.*\'');
-  var i18nreg2 = new RegExp('"i18n",\\s{0,1}".*"');
-  
+  var oldContent = fs.readFileSync(config.frameworkConfigFile, 'utf-8');
   var newContent = oldContent;
-  newContent = newContent.replace(nsreg, '\'namespace\', \'' + answers.namespace + '\'');
-  newContent = newContent.replace(nsreg2, '\'namespace\', \'' + answers.namespace + '\'');
-  
-  newContent = newContent.replace(upreg, '\'urlprefix\', \'' + answers.urlprefix + '\'');
-  newContent = newContent.replace(upreg2, '\'urlprefix\', \'' + answers.urlprefix + '\'');
-
-  newContent = newContent.replace(i18nreg, '\'i18n\', \'' + answers.lang + '\'');
-  newContent = newContent.replace(i18nreg2, '\'i18n\', \'' + answers.lang + '\'');
-
-  fs.writeFileSync('./fis-conf.js', newContent);
-};
-
-
-var makeReg = function(regStings){
-  var regArr = [];
-  regStings.forEach(function(regS){
-    regArr.push( new RegExp(regS));
+  newContent = newContent.replace(/([\'\"]namespace[\'\"]\s*,\s*[\'\"])\w*([\'\"])/g, function($0, $1, $2){
+    return $1 + answers.namespace + $2;
   });
-  return regArr;
+  
+  newContent = newContent.replace(/([\'\"]urlprefix[\'\"]\s*,\s*[\'\"])\w*([\'\"])/g, function($0, $1, $2){
+    return $1 + answers.urlprefix + $2;
+  });
+  
+  newContent = newContent.replace(/([\'\"]lang[\'\"]\s*,\s*[\'\"])[\w-]*([\'\"])/g, function($0, $1, $2){
+    return $1 + answers.lang + $2;
+  });
+  
+  fs.writeFileSync(config.frameworkConfigFile, newContent);
 };
-
 
 var merge = function(targetPath){  
   var currentPath = process.cwd();
   fis.util.copy(targetPath, currentPath, null, null);
 };
-
-
 
 module.exports = Init;

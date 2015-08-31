@@ -4,12 +4,18 @@ var http = require('http'),
     colors = require('colors'),
     async = require('async'),
     request = require('request'),
+    inquirer = require('inquirer'),
     _ = require('lodash');
 
+var Util = require('./util');
 
 //TODO put it in
 var config = require('../config');
-var syncsApi = config.syncsApi;
+
+
+
+var syncsApi;
+//var syncsApi = config.syncsApi;
 
 var poReg = globToRegExp('/lang/*');
 
@@ -28,9 +34,47 @@ var poSuccessN = 0,
     fileSuccessN = 0,
     fileFailN = 0;
 
-
 var Syncs = function(){
-  console.log();
+  runSync();
+};
+
+
+var runSync = function(){
+  var syncsApi;
+  try {
+    var rootPath = Util.getProjectRoot();
+    var ppkg = Util.readJSON(rootPath + '/package.json');
+
+    if ( !ppkg.syncsApi ) {
+      inquirer.prompt([{
+        type: 'input',
+        name: 'syncApi',
+        message: '检测到你的项目没有配置文件同步api，请输入',
+        validate: function(value) {
+          if (value.trim() === '' || value === null) {
+            return '输入一下呗！';
+          } else if (!/^http[sS]:\/\//.test(value)) {
+            return 'miss http://????????????';
+          } else {
+            return true;
+          }
+        }
+      }], function(answer) {
+        syncsApi = answer.syncsApi;
+        syncServer();
+        ppkg.syncsApi = syncsApi;
+        fs.writeFile(rootPath + '/package.json', JSON.stringify(ppkg, null, '  '), function(){});
+      });
+    } else {
+      syncsApi = syncsApi;
+      syncServer();
+    }
+  } catch (error) {
+    fis.log.error('找不到项目根目录，是不是走错地方了');
+  }
+};
+
+var syncServer = function(){
 
   var pattern = fis.media().get('project.files');
   var files = fis.project.getSourceByPatterns(pattern);
@@ -100,6 +144,7 @@ var Syncs = function(){
 };
 
 
+
 var showRst = function(){
   console.log();
   console.log(('PO语言文件同步成功 ' + poSuccessN + ' 个!').bgGreen);
@@ -148,14 +193,14 @@ var requestServer = function(filePath, fileRelease, cb){
     }, function(err, httpResponse, body) {
 
 
-      // console.log("response ============================ ".red);
-      // console.log(JSON.stringify(httpResponse).yellow);
+      console.log("response ============================ ".red);
+      console.log(JSON.stringify(httpResponse).yellow);
 
-      // console.log("body ================================ ".red);
-      // console.log(body.green);
+      console.log("body ================================ ".red);
+      console.log(body.green);
 
-      // console.log(filePath.blue);
-
+      console.log(filePath.blue);
+      checkValid(httpResponse);
       if ( !checkServerFileExist(httpResponse) ) {
 
         return cb(false);
@@ -165,6 +210,14 @@ var requestServer = function(filePath, fileRelease, cb){
       }
     });
 };
+
+var checkValid = function(response){
+  if ( response.body === '加密验证失败验证失败' ) {
+    fis.log.error('加密验证失败验证失败');
+  }
+};
+
+
 
 var checkServerFileExist = function(response){
   if ( response.statusCode === 404 ) {
@@ -178,7 +231,6 @@ var checkServerFileExist = function(response){
 var replaceMsgstr = function(content, customData){
   console.log(customData);
   Object.keys(customData).map(function(msgid){
-    console.log("msgid = ", msgid);
     var reg = new RegExp(msgid + '"[\\s]*\\nmsgstr[\\s]*".*');
     content = content.replace(reg, msgid + '"\nmsgstr ' + customData[msgid]);
   });
