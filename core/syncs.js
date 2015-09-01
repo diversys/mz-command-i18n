@@ -155,7 +155,7 @@ var syncServer = function(){
     seriesRequest.push(function(cb){
       requestServer(filePath, files[file].release, function(exist, content){
         if ( exist ) {
-          updateFile(content, filePath);
+          updateFile(content, '../..' + files[file].release);
           fileSuccessN++;
         } else {
           fileFailN++;
