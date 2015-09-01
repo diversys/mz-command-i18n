@@ -12,8 +12,8 @@ var Util = require('./util'),
 var allVersion = [];
 
 
-var parentPath = process.cwd().split('/').slice(0, -1).join('/');
-
+var parentPath = process.cwd().split('/').slice(0, -1).join('/'),
+    currentPath = process.cwd();
 var config = require('../config');
 
 var Init = function(config){
@@ -203,6 +203,15 @@ var ask = function(){
         });
         
         fs.writeFileSync(config.i18nFile, JSON.stringify(toWriteAnswers, null, "  ") );
+
+        var extraCopyFiles = [
+          '/lang'
+        ];
+
+        extraCopyFiles.map(function(file){
+          fis.util.copy(parentPath + '/' + toWriteAnswers.originName + file,
+                       currentPath + file);
+        });
         Syncl();
       });
     }

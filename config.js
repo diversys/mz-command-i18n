@@ -7,7 +7,6 @@ module.exports = {
     '/' + i18nFile,
     '*.custom.*',
     '/fis-conf.js',
-    '/server.conf',
     '/lang/*'
   ],
   defaultInclude: [
@@ -15,7 +14,7 @@ module.exports = {
   ],
   syncsDirs: [
     '/page/*',
-    '/test/*',
+    //'/test/*',
     '/widget/*'
   ],
   needMappingDirs: [

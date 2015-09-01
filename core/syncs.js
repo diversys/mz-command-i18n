@@ -12,12 +12,17 @@ var Util = require('./util');
 //TODO put it in
 var config = require('../config');
 
-
+var i18nConfig;
+try {
+  i18nConfig = Util.readJSON(config.i18nFile);
+} catch(error) {
+  fis.log.error('_i18n.conf 文件缺失！');
+}
 
 var syncsApi;
 //var syncsApi = config.syncsApi;
 
-var poReg = globToRegExp('/lang/*');
+//var poReg = globToRegExp('/lang/*');
 
 var updatePo = require('./udpo');
 
@@ -31,8 +36,12 @@ var filesNum = 0;
 
 var poSuccessN = 0,
     poFailN = 0,
+    testSuccessN =0,
+    testFailN = 0,
     fileSuccessN = 0,
     fileFailN = 0;
+
+var currentPath = process.cwd();
 
 var Syncs = function(){
   runSync();
@@ -68,7 +77,6 @@ var runSync = function(){
 
         fs.writeFileSync(rootPath + '/package.json', JSON.stringify(ppkg, null, '  '));
         syncServer();
-
       });
     } else {
       syncsApi = ppkg.syncsApi;
@@ -90,12 +98,14 @@ var syncServer = function(){
 
   var seriesRequest = [];
   var seriesPoRequest = [];
+  var seriesTestRequest = [];
 
   _.tap(Object.keys(files), function(tf){
 
     tf.map(function(file){
-      if ( poReg.test(file) ) {
 
+      var langReg = new RegExp('^/lang/*', 'g');
+      if ( langReg.test(file) ) {
         var serverCustomPoFile =  files[file].release;
         var scpt = serverCustomPoFile.split('.');
         scpt.splice(-1, 0, 'custom');
@@ -115,6 +125,25 @@ var syncServer = function(){
         });
       }
     });
+
+    tf.map(function(file){
+      var testReg = new RegExp('^/test/*', 'g');
+      if ( /\/test\/*/g.test(file) ) {
+        var serverCustomTestFile = toCustomName(files[file].release);
+        seriesTestRequest.push(function(cb){
+          requestServer(file.slice(1), serverCustomTestFile, function(exist, content){
+            if ( exist ) {
+              updateTestFile(content, file.slice(1));
+              testSuccessN++;
+            } else {
+              testFailN++;
+            }
+            cb(null, true);
+          });
+        });
+      }
+    });
+
 
   }).filter(function(file){
     return syncsDirRegs.some(function(reg){
@@ -138,16 +167,28 @@ var syncServer = function(){
   });
 
   //sync request start
+  // po first
   async.series(seriesPoRequest, function(err, rst){
-    async.series(seriesRequest, function(err, rst){
-      showRst();
+    // test scecond
+    async.series(seriesTestRequest, function(err, rst){
+      // anthor last
+      async.series(seriesRequest, function(err, rst){
+        showRst();
+      });
     });
   });
+};
+
+var toCustomName = function(filename){
+  var scpt = filename.split('.');
+  scpt.splice(-1, 0, 'custom');
+  return  scpt.join('.');
 };
 
 var showRst = function(){
   console.log();
   console.log(('PO语言文件同步成功 ' + poSuccessN + ' 个!').bgGreen);
+  console.log(('TEST文件同步成功 ' + testSuccessN + ' 个!').bgGreen);
   //console.log(('PO语言文件同步失败 ' + poFailN + ' 个!').bgYellow.red);
   console.log(('文件同步成功 ' + fileSuccessN + ' 个!').bgGreen);
   console.log(('文件同步失败 ' + fileFailN + ' 个!').bgYellow.red);
@@ -175,6 +216,14 @@ var updatePoFile = function(newContent, filePath){
   updateFile(poContent, filePath);
 };
 
+var updateTestFile = function(content, filePath){
+  var reg = new RegExp('=>(\\s\'\/)(.*\/)(\'\.)', 'g');
+  var newContent = content.replace(reg, function($0 ,$1, $2, $3){
+    return $1 + i18nConfig.namespace + '/' + $2 + $3;
+  });
+  updateFile(newContent, filePath);
+};
+
 var requestServer = function(filePath, fileRelease, cb){
 
     var t = + new Date();
@@ -188,17 +237,18 @@ var requestServer = function(filePath, fileRelease, cb){
         token: getToken(t)
       }
     }, function(err, httpResponse, body) {
-      console.log("syncsApi = ", syncsApi);
-      console.log("err = ", err);
+      // console.log("syncsApi = ", syncsApi);
+      // console.log("err = ", err);
 
 
-      console.log("response ============================ ".red);
-      console.log(JSON.stringify(httpResponse).yellow);
+      // console.log("response ============================ ".red);
+      // console.log(JSON.stringify(httpResponse).yellow);
 
-      console.log("body ================================ ".red);
-      console.log(body.green);
+      // console.log("body ================================ ".red);
+      // console.log(body.green);
 
-      console.log(filePath.blue);
+      // console.log(filePath.blue);
+
       checkValid(httpResponse);
       if ( !checkServerFileExist(httpResponse) ) {
 
