@@ -13,11 +13,7 @@ var Util = require('./util');
 var config = require('../config');
 
 var i18nConfig;
-try {
-  i18nConfig = Util.readJSON(config.i18nFile);
-} catch(error) {
-  fis.log.error('_i18n.conf 文件缺失！');
-}
+
 
 var syncsApi;
 //var syncsApi = config.syncsApi;
@@ -44,6 +40,11 @@ var poSuccessN = 0,
 var currentPath = process.cwd();
 
 var Syncs = function(){
+  try {
+    i18nConfig = Util.readJSON(config.i18nFile);
+  } catch(error) {
+    fis.log.error('_i18n.conf 文件缺失！');
+  }
   runSync();
 };
 

@@ -111,12 +111,4 @@ var copyTest= function(originPath, namespace, cb){
   });
 };
 
-
-
-var updateTestFile = function(){
-  
-};
-
-
-
 module.exports = Syncl;

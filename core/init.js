@@ -13,7 +13,8 @@ var allVersion = [];
 
 
 var parentPath = process.cwd().split('/').slice(0, -1).join('/'),
-    currentPath = process.cwd();
+    currentPath = process.cwd(),
+    currentDirName = currentPath.split('/').slice(-1)[0];
 var config = require('../config');
 
 var Init = function(config){
@@ -212,8 +213,15 @@ var ask = function(){
           fis.util.copy(parentPath + '/' + toWriteAnswers.originName + file,
                        currentPath + file);
         });
-        Syncl();
+        if ( toWriteAnswers.originName !== currentDirName ) {
+          Syncl();  
+        }
       });
+    } else {
+      fs.writeFileSync(config.i18nFile, JSON.stringify(toWriteAnswers, null, "  ") );
+      if ( toWriteAnswers.originName !== currentDirName ) {
+        Syncl();  
+      }
     }
   });
 };

@@ -1,6 +1,6 @@
 {
   "name": "mz-command-i18n",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "mz i18n",
   "main": "i18n.js",
   "scripts": {
@@ -37,7 +37,6 @@
     "lodash": "^3.10.1",
     "meow": "^3.3.0",
     "request": "^2.61.0",
-    "rx": "^3.0.1",
     "walk": "^2.3.9"
   }
 }
