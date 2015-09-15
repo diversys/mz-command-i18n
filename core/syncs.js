@@ -58,7 +58,7 @@ var runSync = function(){
       inquirer.prompt([{
         type: 'input',
         name: 'syncsApi',
-        message: '检测到你的项目没有配置文件同步api，请输入',
+        message: 'tell me sync server url!',
         validate: function(value) {
           if (value.trim() === '' || value === null) {
             return '输入一下呗！';

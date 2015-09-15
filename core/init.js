@@ -18,44 +18,44 @@ var parentPath = process.cwd().split('/').slice(0, -1).join('/'),
 var config = require('../config');
 
 var Init = function(config){
-  if ( checkThisEmpty() ) {
-    askToInit();
-  } else {
-    checkContinue(function(){
-      askToInit();  
-    });
-  }
+    if ( checkThisEmpty() ) {
+        askToInit();
+    } else {
+        checkContinue(function(){
+            askToInit();  
+        });
+    }
 };
 
 
 var askToInit = function(){
-  getAllVersion();
-  ask();
+    getAllVersion();
+    ask();
 };
 
 var checkThisEmpty = function(){
-  return emptyDir.sync('.');
+    return emptyDir.sync('.');
 };
 
 var checkContinue = function(cb){
-  inquirer.prompt([{
-    type: 'confirm',
-    name: 'confirm',
-    message: '你这个文件夹不是空的哦，覆盖吗骚年?'
-  }], function(answers){
-    if ( answers.confirm ) {
-      cb();
-    } else {
-      console.log('呵呵');
-    }
-  });
+    inquirer.prompt([{
+        type: 'confirm',
+        name: 'confirm',
+        message: '你这个文件夹不是空的哦，覆盖吗骚年?'
+    }], function(answers){
+        if ( answers.confirm ) {
+            cb();
+        } else {
+            console.log('呵呵');
+        }
+    });
 };
 
 var getAllVersion = function(){
-  var parentPath = process.cwd().split('/').slice(0, -1).join('/');
-  var filesname = fs.readdirSync(parentPath);
-  //TODO: there has a bug( noknown undefined );
-  allVersion = filterFile(filesname, parentPath);
+    var parentPath = process.cwd().split('/').slice(0, -1).join('/');
+    var filesname = fs.readdirSync(parentPath);
+    //TODO: there has a bug( noknown undefined );
+    allVersion = filterFile(filesname, parentPath);
 };
 
 //return dirs
@@ -80,10 +80,10 @@ var ask = function(){
     {
       type: 'input',
       name: 'originName',
-      message: '你要选哪个版本作为原始版本?',
-      filter: function(value){
-        return value.trim();
-      },
+        message: 'what version you want to merge?',
+        filter: function(value){
+            return value.trim();
+        },
       validate: function(value){
         if ( value.trim() === '' || value === null ) {
           return '你有输入吗？啊!';
@@ -97,7 +97,7 @@ var ask = function(){
     {
       type: 'input',
       name: 'urlprefix',
-      message: 'urlprex是啥?',
+      message: 'what is urlprex?',
       filter: function(value){
         if ( /^\//.test(value) ) {
           return value.trim();
@@ -115,10 +115,10 @@ var ask = function(){
     }, {
       type: 'input',
       name: 'lang',
-      message: '语言变量名是啥，举个栗子zh-CN?',
-      filter: function(value){
-        return value.trim();
-      },
+        message: 'what is lang? (e.x zh-CN)?',
+        filter: function(value){
+            return value.trim();
+        },
       validate: function(value){
         if ( value.trim() === '' || value === null ) {
           return '手抖了？';
@@ -129,11 +129,11 @@ var ask = function(){
     }, {
       type: 'input',
       name: 'namespace',
-      message: '请告诉我命名空间（namespace）！',
-      filter: function(value){
-        return value.trim();
-      },
-      validate: function(value){
+        message: 'what is namespace?',
+        filter: function(value){
+            return value.trim();
+        },
+        validate: function(value){
         if ( value.trim() === '' || value === null ) {
           return '嗯？';
         } else {
@@ -168,16 +168,16 @@ var ask = function(){
           mappingQuestions.push({
             type: 'input',
             name: dir.split('/').join('.').slice(1) + '.' + subdir,
-            message: 'Okeydokey，这个原始目录[ ' + subdir.green  + ' ]你想mapping成啥样?((留空则不mapping哦!))',
-            filter: function(value){
-              value = value.trim();
-              if(!value || value === '') {
-                return subdir;
-              } else {
-                return value; 
-              }
-            },
-            validate: function(value){
+            message: 'Okeydokey，[ ' + subdir.green  + ' ] mapping to?',
+              filter: function(value){
+                  value = value.trim();
+                  if(!value || value === '') {
+                      return subdir;
+                  } else {
+                      return value; 
+                  }
+              },
+              validate: function(value){
               if(value.length === 1) {
                 return '一个字符？你在逗我？';
               } else {

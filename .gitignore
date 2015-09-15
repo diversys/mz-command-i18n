@@ -1,5 +1,5 @@
 .tern-port
-config.example.js
+work.org
 node_modules
 ~*
 .DS_Store
