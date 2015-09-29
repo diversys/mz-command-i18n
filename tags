@@ -1,0 +1,16 @@
+!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
+config	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var config = require('..\/config');$/;"	v	language:JavaScript
+currentPath	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var currentPath = process.cwd();$/;"	v	language:JavaScript
+email	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var email = 'yekai@meizu.com';$/;"	v	language:JavaScript
+failedFilesQueue	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var failedFilesQueue;$/;"	v	language:JavaScript
+filesNum	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var filesNum = 0;$/;"	v	language:JavaScript
+http	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var http = require('http'),$/;"	v	language:JavaScript
+i18nConfig	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var i18nConfig;$/;"	v	language:JavaScript
+i18nFile	/Users/tyan/GITHUB/mz-command-i18n/config.js	/^var i18nFile = '_i18n.json';$/;"	v	language:JavaScript
+matches	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var matches = fis.media().getSortedMatches();$/;"	v	language:JavaScript
+module.exports.defaultExclude	/Users/tyan/GITHUB/mz-command-i18n/config.js	/^  i18nFile: i18nFile,$/;"	p	language:JavaScript
+module.exports.i18nFile	/Users/tyan/GITHUB/mz-command-i18n/config.js	/^module.exports = {$/;"	p	language:JavaScript
+poSuccessN	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var poSuccessN = 0,$/;"	v	language:JavaScript
+Syncs	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var Syncs = function(){$/;"	f	language:JavaScript
+syncsApi	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var syncsApi;$/;"	v	language:JavaScript
+Util	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var Util = require('.\/util');$/;"	v	language:JavaScript

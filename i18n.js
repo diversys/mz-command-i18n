@@ -95,5 +95,3 @@ var help = function(){
   ].join('\n');
   console.log(content);
 };
-
-

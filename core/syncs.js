@@ -67,13 +67,8 @@ var runSync = function(){
                 }
             }
         }], function(answer) {
-            console.log("answer = ", answer);
-
             syncsApi = answer.syncsApi;
             ppkg.syncsApi = syncsApi;
-            console.log("ppkg = ", ppkg);
-            console.log(rootPath + '/package.json');
-
             fs.writeFileSync(rootPath + '/package.json', JSON.stringify(ppkg, null, '  '));
             syncServer();
         });
@@ -103,6 +98,7 @@ var syncServer = function(){
 
         tf.map(function(file){
 
+            //get lang to syncs
             var langReg = new RegExp('^/lang/*', 'g');
             if ( langReg.test(file) ) {
                 var serverCustomPoFile =  files[file].release;
@@ -111,14 +107,17 @@ var syncServer = function(){
                 serverCustomPoFile = scpt.join('.');
 
                 seriesPoRequest.push(function(cb){
+                    //callback function
                     requestServer(file.slice(1), serverCustomPoFile, function(exist, content){
                         if ( exist ) {
-                            updatePoFile(content, file.slice(1));
+                            updatePoFile(content, file.slice(1));//trim '/';
                             poSuccessN++;
                         } else {
+                            //server not exist but not a error
                             poFailN++;
-                            console.log(('INFO:  po文件[ ' + file.slice + ' ]没有需要同步的内容!'));
+                            //console.log(('INFO:  po文件[ ' + file.slice(1) + ' ]没有需要同步的内容!'));
                         }
+                        //async module next
                         cb(null, true);
                     });
                 });
@@ -126,6 +125,7 @@ var syncServer = function(){
         });
 
         tf.map(function(file){
+            //take test file
             var testReg = new RegExp('^/test/*', 'g');
             if ( /\/test\/*/g.test(file) ) {
                 var serverCustomTestFile = toCustomName(files[file].release);
@@ -145,16 +145,18 @@ var syncServer = function(){
 
 
     }).filter(function(file){
+        //filter not need
         return syncsDirRegs.some(function(reg){
             return reg.test(file);
         });
     }).map(function(file){
+        //map normal file
         var filePath = file.slice(1);
-
         seriesRequest.push(function(cb){
             requestServer(filePath, files[file].release, function(exist, content){
                 if ( exist ) {
-                    updateFile(content, '../..' + files[file].release);
+                    updateFile(content, '../../dist/' + files[file].release);
+                    //updateFile(content, file.slice(1));
                     fileSuccessN++;
                 } else {
                     fileFailN++;
