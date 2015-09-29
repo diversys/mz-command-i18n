@@ -151,7 +151,7 @@ var ask = function(){
     var targetPath = parentPath + '/' + answers.originName;
     
     merge(targetPath);
-    replace(answers);
+      replace(answers);
 
     answers.include = config.defaultInclude;
     answers.exclude = config.defaultExclude;
