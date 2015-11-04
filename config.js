@@ -20,6 +20,5 @@ module.exports = {
         '/page/products'
     ],
     frameworkConfigFile:'fis-conf.js',
-    syncsDomain: 'm.meizu.com',
-    syncsApi: ''
+    syncsDomain: 'www.meizu.com'
 };

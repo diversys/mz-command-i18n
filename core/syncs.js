@@ -14,7 +14,8 @@ var config = require('../config');
 
 var i18nConfig;
 
-var syncsApi;
+var syncsApi,
+    syncsDomain;
 //var syncsApi = config.syncsApi;
 
 //var poReg = globToRegExp('/lang/*');
@@ -52,8 +53,8 @@ var runSync = function(){
     var rootPath = Util.getProjectRoot();
     var ppkg = Util.readJSON(rootPath + '/package.json');
 
-    if ( !ppkg.syncsApi ) {
-        inquirer.prompt([{
+    var requireQs = {
+        syncsApi: {
             type: 'input',
             name: 'syncsApi',
             message: 'tell me sync server url!',
@@ -66,16 +67,70 @@ var runSync = function(){
                     return true;
                 }
             }
-        }], function(answer) {
-            syncsApi = answer.syncsApi;
-            ppkg.syncsApi = syncsApi;
+        },
+        syncsDomain:{
+            type: 'input',
+            name: 'syncsDomain',
+            message: 'which doman? [www.meizu.com|m.meizu.com]'
+        }
+    };
+
+    var requiredNeedPrompt = [];
+    Object.keys(requireQs).map(function(k){
+        if ( !ppkg[k] ) {
+            requiredNeedPrompt.push(requireQs[k]);
+        }
+    });
+
+    var start = function(){
+        syncsApi = ppkg.syncsApi;
+        syncsDomain = ppkg.syncsDomain;
+        syncServer();
+    };
+    
+    if ( requiredNeedPrompt.length !== 0 ) {
+        inquirer.prompt(requiredNeedPrompt, function(answers){
+            console.log(answers);
+            // Object.keys(requireQs).map(function(k){
+            //     ppkg[k] = answers[k];
+            // });
+            Object.keys(answers).map(function(k){
+                ppkg[k] = answers[k];
+            });
             fs.writeFileSync(rootPath + '/package.json', JSON.stringify(ppkg, null, '  '));
-            syncServer();
+            console.log(ppkg);
+            start();
         });
     } else {
-        syncsApi = ppkg.syncsApi;
-        syncServer();
+        start();
     }
+
+    
+
+    // if ( !ppkg.syncsApi ) {
+    //     inquirer.prompt([{
+    //         type: 'input',
+    //         name: 'syncsApi',
+    //         message: 'tell me sync server url!',
+    //         validate: function(value) {
+    //             if (value.trim() === '' || value === null) {
+    //                 return '输入一下呗！';
+    //             } else if (!/^http[s]*:\/\//.test(value)) {
+    //                 return 'miss http://????????????';
+    //             } else {
+    //                 return true;
+    //             }
+    //         }
+    //     }], function(answer) {
+    //         syncsApi = answer.syncsApi;
+    //         ppkg.syncsApi = syncsApi;
+    //         fs.writeFileSync(rootPath + '/package.json', JSON.stringify(ppkg, null, '  '));
+    //         syncServer();
+    //     });
+    // } else {
+    //     syncsApi = ppkg.syncsApi;
+    //     syncServer();
+    // }
 
 };
 
@@ -155,9 +210,9 @@ var syncServer = function(){
         seriesRequest.push(function(cb){
             requestServer(filePath, files[file].release, function(exist, content){
                 if ( exist ) {
-                    updateFile(content, '../../dist/' + files[file].release);
+                    updateFile(content, '../../dist' + files[file].release);
                     //updateFile(content, file.slice(1));
-                    fileSuccessN++;
+                    
                 } else {
                     fileFailN++;
                     console.log(('Error:  服务器说线上不存在[ ' + filePath + ' ]这个文件!').red);
@@ -188,9 +243,9 @@ var toCustomName = function(filename){
 
 var showRst = function(){
     console.log();
-    console.log(('PO语言文件同步成功 ' + poSuccessN + ' 个!').green);
-    console.log(('TEST文件同步成功 ' + testSuccessN + ' 个!').green);
-    //console.log(('PO语言文件同步失败 ' + poFailN + ' 个!').bgYellow.red);
+    console.log(('PO 语言文件同步成功 ' + poSuccessN + ' 个!').green);
+    console.log(('TEST 文件同步成功 ' + testSuccessN + ' 个!').green);
+    //console.log(('PO 语言文件同步失败 ' + poFailN + ' 个!').bgYellow.red);
     console.log(('文件同步成功 ' + fileSuccessN + ' 个!').green);
     console.log(('文件同步失败 ' + fileFailN + ' 个!').bgYellow.red);
     console.log();
@@ -200,6 +255,10 @@ var updateFile = function(newContent, filePath){
     fs.writeFile(filePath, newContent, function(err){
         if ( err ) {
             console.log(('write file[ ' + filePath + '] fail!').underline.bgYellow.red);
+            fileFailN++;
+        } else {
+            fileSuccessN++;
+            console.log(('write file[ ' + filePath + '] successful!').underline.green);
         }
     });
 };
@@ -234,7 +293,7 @@ var requestServer = function(filePath, fileRelease, cb){
         form: {
             to: fileRelease,
             email: getEmail(),
-            domain: config.syncsDomain,
+            domain: syncsDomain,
             t: t,
             token: getToken(t)
         }
