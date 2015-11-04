@@ -15,6 +15,7 @@ var allVersion = [];
 var parentPath = process.cwd().split('/').slice(0, -1).join('/'),
     currentPath = process.cwd(),
     currentDirName = currentPath.split('/').slice(-1)[0];
+
 var config = require('../config');
 
 var Init = function(config){
