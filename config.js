@@ -5,8 +5,7 @@ module.exports = {
     defaultExclude: [
         '*/' + i18nFile,
         '*.custom.*',
-        '*/fis-conf.js',
-        '*/server.conf'
+        '*/fis-conf.js'
     ],
     defaultInclude: [
         '*'
