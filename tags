@@ -1,5 +1,7 @@
 !_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
+config	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var config = require('..\/config');$/;"	v	language:JavaScript
 config	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var config = require('..\/config');$/;"	v	language:JavaScript
+copyTest	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var copyTest= function(originPath, namespace, cb){$/;"	f	language:JavaScript
 currentPath	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var currentPath = process.cwd();$/;"	v	language:JavaScript
 email	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var email = 'yekai@meizu.com';$/;"	v	language:JavaScript
 failedFilesQueue	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var failedFilesQueue;$/;"	v	language:JavaScript
@@ -10,7 +12,16 @@ i18nFile	/Users/tyan/GITHUB/mz-command-i18n/config.js	/^var i18nFile = '_i18n.js
 matches	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var matches = fis.media().getSortedMatches();$/;"	v	language:JavaScript
 module.exports.defaultExclude	/Users/tyan/GITHUB/mz-command-i18n/config.js	/^  i18nFile: i18nFile,$/;"	p	language:JavaScript
 module.exports.i18nFile	/Users/tyan/GITHUB/mz-command-i18n/config.js	/^module.exports = {$/;"	p	language:JavaScript
+parentPath	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var parentPath = process.cwd().split('\/').slice(0, -1).join('\/');$/;"	v	language:JavaScript
+path	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var path = require('path'),$/;"	v	language:JavaScript
 poSuccessN	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var poSuccessN = 0,$/;"	v	language:JavaScript
+processX	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var processX = function(){$/;"	f	language:JavaScript
+processX.printProgress	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^  var printProgress = function(){$/;"	f	language:JavaScript
+Syncl	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var Syncl = function() {$/;"	f	language:JavaScript
+Syncl.copyMapping	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^  var copyMapping = function(){$/;"	f	language:JavaScript
 Syncs	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var Syncs = function(){$/;"	f	language:JavaScript
 syncsApi	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var syncsApi;$/;"	v	language:JavaScript
+syncTestErrN	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var syncTestErrN = 0,$/;"	v	language:JavaScript
+testDir	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var testDir = 'test';$/;"	v	language:JavaScript
+Util	/Users/tyan/GITHUB/mz-command-i18n/core/syncl.js	/^var Util = require('.\/util');$/;"	v	language:JavaScript
 Util	/Users/tyan/GITHUB/mz-command-i18n/core/syncs.js	/^var Util = require('.\/util');$/;"	v	language:JavaScript
