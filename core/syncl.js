@@ -46,7 +46,7 @@ var Syncl = function() {
       return function(){
         Object.keys(i18nConfig.mapping).map(function(excludeRegs){
           fis.util.copy(originPath + '/' + excludeRegs,
-                        currentPath + '/' + i18nConfig.mapping[excludeRegs]);
+                        currentPath + '/' + i18nConfig.mapping[excludeRegs], null, null, true);
           
         });
       };
@@ -57,7 +57,7 @@ var Syncl = function() {
 
   excludeRegs.push(globToRegExp(parentPath + '/' + testDir));
   
-  fis.util.copy(originPath, currentPath, includeRegs, excludeRegs);
+    fis.util.copy(originPath, currentPath, includeRegs, excludeRegs, true);
   
   copyMapping();
   copyTest(originPath, i18nConfig.namespace, function(){
