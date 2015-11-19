@@ -1,5 +1,16 @@
 var fs = require('fs');
 
+var isDir = function(path){
+    try {
+        var stats = fs.lstatSync(path);
+        if ( stats.isDirectory() ) {
+            return true;
+        }
+    } catch (e) {
+        return false;
+    }
+};
+
 
 var Util = {
   makeReg: function(regStrings){
@@ -16,8 +27,8 @@ var Util = {
 
   getProjectRoot: function(){
     return findProjectRoot(process.cwd());
-  }
-
+  },
+    isDir: isDir
 };
 
 var findProjectRoot = function(path){
@@ -27,6 +38,7 @@ var findProjectRoot = function(path){
     return findProjectRoot(path.split('/').slice(0, -1).join('/'));
   }
 };
+
 
 
 
