@@ -1,6 +1,6 @@
 {
   "name": "mz-command-i18n",
-  "version": "2.2.2",
+  "version": "2.2.7",
   "description": "mz i18n",
   "main": "i18n.js",
   "scripts": {
@@ -14,18 +14,18 @@
     "mz",
     "i18n"
   ],
-  "author": "AbyChan",
+  "author": {
+    "name": "AbyChan"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/mz-team/mz-command-i18n/issues"
   },
   "homepage": "https://github.com/mz-team/mz-command-i18n#readme",
-  "readme": "## mz-command-i18n\n--- \nfor Internationalization merge feature\n\n#### Usage:\n< fis | mz > i18n \\<origin version>\n",
-  "readmeFilename": "README.md",
   "gitHead": "d5fe868d56b7805ffd73f0c3e14e6ffca4072ec5",
-  "_id": "mz-command-i18n@1.1.2",
-  "_shasum": "f79bc1f3e3c250c051d99f261ff2d4ec38ef95f4",
-  "_from": "mz-command-i18n@>=1.0.2 <2.0.0",
+  "_id": "mz-command-i18n@2.2.6",
+  "_shasum": "f76f0e2e0bf83f784e61f7369f8d76e19a9b2e22",
+  "_from": "mz-command-i18n@*",
   "dependencies": {
     "async": "^1.4.2",
     "colors": "^1.1.2",
@@ -36,7 +36,31 @@
     "inquirer": "^0.9.0",
     "lodash": "^3.10.1",
     "meow": "^3.3.0",
+    "nodejs-fs-utils": "^1.0.26",
     "request": "^2.61.0",
     "walk": "^2.3.9"
-  }
+  },
+  "_npmVersion": "3.3.10",
+  "_nodeVersion": "4.2.0",
+  "_npmUser": {
+    "name": "abychan",
+    "email": "abychen@outlook.com"
+  },
+  "dist": {
+    "shasum": "f76f0e2e0bf83f784e61f7369f8d76e19a9b2e22",
+    "tarball": "http://registry.npmjs.org/mz-command-i18n/-/mz-command-i18n-2.2.6.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "kaiye",
+      "email": "catgecn@gmail.com"
+    },
+    {
+      "name": "abychan",
+      "email": "abychan@outlook.com"
+    }
+  ],
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/mz-command-i18n/-/mz-command-i18n-2.2.6.tgz",
+  "readme": "ERROR: No README data found!"
 }
