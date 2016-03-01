@@ -7,8 +7,9 @@ var path = require('path'),
     filePath, // 同步文件路径，基于基本路径
     toPaths, // 要拷贝到哪些目录
    	isForce = false; // 强制一致，既同步之后各个参与同步的目录该文件（夹）将完全一样
+   	cwd = process.cwd(),
    	parentDir = '../';
-   	currentDir = process.cwd().match(/[\/\\]\w+$/)[0].slice(1);
+   	currentDir = cwd.match(/[\/\\]\w+$/)[0].slice(1);
 
 function init() {
    	if (!/source.[\w]{2,3}$/.test(process.cwd()) && isValidDir(currentDir)) {
@@ -191,8 +192,10 @@ function getAllDir () {
  */
 function action(options) {
    	filePath = options.filePath;
-   	basePath = path.join(parentDir, options.basePath, filePath);
-   	toPaths = options.toPaths.map(function(toPath) {return path.join(parentDir, toPath, filePath)});
+   	basePath = path.normalize(path.join(cwd, parentDir, options.basePath, filePath));
+   	toPaths = options.toPaths.map(function(toPath) {
+   		return path.normalize(path.join(cwd, parentDir, toPath, filePath));
+   	});
    	isForce = options.isForce;
 
    	toPaths.forEach(function(toPath) {
