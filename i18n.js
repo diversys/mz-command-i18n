@@ -7,12 +7,14 @@
 var fs = require('fs'),
     colors = require('colors'),
     lolcat = require('fis-lolcat'),
-    meow = require('meow');
+    meow = require('meow'),
+    R = require('fw-ramda');
 
 var Syncl = require('./core/syncl'),
     Syncs = require('./core/syncs'),
     Edit = require('./core/edit'),
-    Init = require('./core/init');
+    Init = require('./core/init'),
+    syncFile = require('./core/syncfile');
 
  exports.name = 'i18n';
  exports.usage = 'i18n <origin>';
@@ -30,17 +32,17 @@ exports.register = function(commander) {
     ]
   });
 
-  var cmd = i18n.input[1];
+    var cmd = i18n.input[1];
 
   needHelp(i18n.flags);
   
   switch ( cmd ) {
   case 'syncs': //sync server
-    Syncs();
+      Syncs();
     break;
 
   case 'syncl': //sync loacl
-    Syncl();
+      Syncl(R.drop(2, i18n.input));
     break;
 
   case 'init': 
@@ -49,6 +51,10 @@ exports.register = function(commander) {
 
   case 'edit':
     Edit();
+    break;
+
+  case 'syncfile'://文件同步，从其他国家同步某文件（夹）到当前国家，或当前-》其他or指定
+    syncFile();
     break;
 
   case 'help':
@@ -89,6 +95,7 @@ var help = function(){
     '                edit             --   编辑_i18n'.rainbow,
     '                syncl            --   同步本地'.rainbow,
     '                syncs            --   同步线上'.rainbow,
+    '                syncfile         --   国家之间同步文件'.rainbow,
     '                help             --   i18n的救赎'.rainbow,
     '                gift             --   送给骚年们的礼物'.rainbow,
     ''
