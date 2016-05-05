@@ -1,7 +1,10 @@
 var path = require('path'),
+    syspath = require('path'),
     globToRegExp = require('glob-to-regexp'),
     walk = require('walk'),
     fs = require('fs');
+
+var fse = require('fs-extra');
 
 var Util = require('./util');
 
@@ -22,13 +25,59 @@ var IGNORE_SOURCE_DIRS = ['i18n-php-server'];
 var R = require('fw-ramda');
 
 
+var copy = function(source, targets, p){
+    
+    var stat = fs.statSync(source);
+    
+    if( stat.isDirectory() ){
+        fs.readdir(source, function(err, paths){
+            paths.forEach(function(path){
+                if( path !== '.' && path !== '..' ){
+                    copy(source + '/' + path, targets, syspath.join(p || '', path));
+                }
+            });
+        });
+    } else if( stat.isFile() ){
+        fs.readFile(source, function(err, data){
+            if( err ){
+                throw err;
+            }
+            targets.forEach(function(target){
+
+                var tpath = syspath.join(target.path, p);
+                if( target.excludeRegs.every(function(e){
+                    return !e.test(tpath);
+                }) ){
+
+                    var ppath = R.dropLast(1, tpath.split('/')).join('/');
+
+
+                    fse.ensureDir(ppath, function(err){
+                        if( err ){
+                            throw err;
+                        }
+                        console.log(tpath);
+                        fs.writeFile(tpath, data, function(err){
+                            if( err ){
+                                throw err;
+                            }
+                        });
+                    });
+                    
+
+                }
+            });
+            
+        });
+    }
+};
 
 var Syncl = function(args) {
     
     fis.log.info('开始同步了骚年！');
     console.log();
     
-    var stopProcess = processX();
+    //var stopProcess = processX();
     
     //var i18nConfig;
     
@@ -49,7 +98,8 @@ var Syncl = function(args) {
         process.exit();
     }
 
-    var currentLanVersion = R.last(path.resolve('.').split('/'));
+    var currentLanVersion = R.last(path.resolve('.').split('/')),
+        currentPath = path.resolve('.');
 
     if( i18nConfig.syncDir.exclude.indexOf(currentLanVersion) < 0 ){
         i18nConfig.syncDir.exclude.push(currentLanVersion);
@@ -61,6 +111,8 @@ var Syncl = function(args) {
     }).filter(function(path){
         return IGNORE_SOURCE_DIRS.indexOf(path) < 0;
     });
+
+    var products = commonConfig.product;
 
     var includeReg = globToRegExp(i18nConfig.syncDir.include);
     
@@ -81,23 +133,92 @@ var Syncl = function(args) {
                     fis.log.error('你用哪个 CommonRule ?');
                     process.exit();
                 }
-                exclude = R.merge(commonRule.exclude, spec.exclude);
+                exclude = R.concat(commonRule.exclude, spec.exclude);
             } else {
-                exclude = commonConfig.rule['default'];
+                exclude = commonConfig.rule['default'].exclude;
             }
             
-            let excludeRegs = exclude.map(function(e){
-                return globToRegExp(e);
+            var excludeRegs = exclude.map(function(e){
+                return globToRegExp(syspath.join(syspath.resolve('.'), e));
             });
 
-            fis.copy('.', '../' + path, null, excludeRegs);
+            
+            fis.util.copy(syspath.resolve('.'), syspath.join('../', path), null, excludeRegs);
         });
+
+        
         
     } else if( args.length === 1 ){
-        
-        
+
+
+        var command = args[0];
+
+        if( paths.indexOf(command) ){
+            var exclude;
+            if( i18nConfig.specRule[command] ){
+                var spec = i18nConfig.specRule[command];
+                var commonRule = commonConfig.rule[spec['useCommonRule']];
+                if( !commonConfig ){
+                    fis.log.error('你用哪个 CommonRule ?');
+                    process.exit();
+                }
+                exclude = R.concat(commonRule.exclude, spec.exclude);
+            } else {
+                exclude = commonConfig.rule['default'].exclude;
+            }
+            var excludeRegs = exclude.map(function(e){
+                return globToRegExp(syspath.join(currentPath, e));
+            });
+            
+            fis.util.copy(syspath.resolve('.'), syspath.join('../', command), null, excludeRegs);
+        }
+
+        if( Object.keys(products).indexOf(command) >= 0 ){
+
+            paths.filter(function(path){
+                return includeReg.test(path);
+            }).filter(function(path){
+                return i18nConfig.syncDir.exclude.indexOf(path) < 0;
+            }).map(function(path){
+
+                var exclude;
+                
+                if( i18nConfig.specRule[path] ){
+                    var spec = i18nConfig.specRule[path];
+                    var commonRule = commonConfig.rule[spec['useCommonRule']];
+                    if( !commonConfig ){
+                        fis.log.error('你用哪个 CommonRule ?');
+                        process.exit();
+                    }
+                    exclude = R.concat(commonRule.exclude, spec.exclude);
+                } else {
+                    exclude = commonConfig.rule['default'].exclude;
+                }
+                
+                var excludeRegs = exclude.map(function(e){
+                    return globToRegExp(syspath.join(syspath.resolve('.'), e));
+                });
+
+
+                var includeRegs = products[command].map(function(e){
+                    return globToRegExp(syspath.join(syspath.resolve('.'), e));
+                });
+                
+                fis.util.copy(syspath.resolve('.'), syspath.join('../', path), includeRegs, excludeRegs);
+            });
+            
+        }
         
     } else if( args.length === 2 ){
+        
+        var language = args[0],
+            productName = args[1];
+
+        var includeRegs = products[productName].map(function(e){
+            return globToRegExp(syspath.join(syspath.resolve('.'), e));
+        });
+
+        fis.util.copy(syspath.resolve('.'), syspath.join('../', language), includeRegs, null);
         
     } else {
         fis.log.error('参数不合法');
