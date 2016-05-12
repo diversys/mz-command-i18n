@@ -195,13 +195,6 @@ var ask = function(){
                             } else {
                                 return value; 
                             }
-                        },
-                        validate: function(value){
-                            if(value.length === 1) {
-                                return '一个字符？你在逗我？';
-                            } else {
-                                return true;
-                            }
                         }
                     });
                 });

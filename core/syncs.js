@@ -190,8 +190,10 @@ var getFileNeedSync = function(){
             }
             body = JSON.parse(body);
             if( body.status != 200 ){
+
                 return reject(body.message);
             } else {
+
                 return resolve(body.result.list);
             }
         });
@@ -211,14 +213,20 @@ var tellSyncDone = function(filepath){
                 token: getToken(t)
             }
         }, function(err, httpResponse, body) {
-
+            
             if( err ) {
                 return reject(new Error('Network Error!'));
             }
+
+            body = JSON.parse(body);
+
             if( body.status != 200 ){
+
                 return reject(body.message);
+                
             } else {
-                return resolve(body.result.list);
+
+                return resolve(body.result);
             }
         });
     });
@@ -255,35 +263,36 @@ var syncFile = function(fileurl, targetFilePath) {
 };
 
 var syncServer = function(){
-    // var pattern = fis.media().get('project.files');
-    // var files = fis.project.getSourceByPatterns(pattern);
-    // console.log("pattern = ", files);
+
 
     var pwd = process.cwd(),
         namespace = pwd.split('/')[pwd.split('/').length - 1];
     
-    //console.log("pwd = ", namespace);
+
     
     getFileNeedSync().then(function(filelist){
+
+
+        
         filelist.map(function(file){
             
             var a = file.split('/');
 
             var targeFilePath;
             if( a[0] === 'test' && a[1] === namespace ){
-                //syncFile(file, _.drop(a, 2).join('/'));
-                targeFilePath =  _.drop(a, 2).join('/');
+                targeFilePath =  path.join('test', _.drop(a, 2).join('/'));
             }
 
             if( a[0] === 'config' && a[1] === 'lang'){
-                targeFilePath = 'lang' + _.drop(a[2].split('.'), 1).join('.');
-                //syncFile(file, 'lang/' + filename);
+                if( a[2].split('.')[0] === namespace ){
+                    targeFilePath = path.join('lang', _.drop(a[2].split('.'), 1).join('.'));
+                }
             }
 
             if( a[0] === 'template' && a[1] === namespace ){
                 targeFilePath = _.drop(a, 2).join('/');
             }
-
+            
             if( targeFilePath ){
                 syncFile(file, targeFilePath).then(function(){
                     
@@ -446,7 +455,7 @@ var updateTestFile = function(content, filePath){
     }
     updateFile(content, filePath);
 };
-
+ 
 // var requestServer = function(filePath, fileRelease, cb){
 //     var t = + new Date();
 
@@ -486,7 +495,7 @@ var checkValid = function(response){
     // if ( response.body === '加密验证失败验证失败' ) {
     //     fis.log.error('加密验证失败验证失败');
     // }
-    return ! /验证失败/.test(response.body);  
+    return !/验证失败/.test(response);  
 };
 
 

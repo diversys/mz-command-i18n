@@ -172,9 +172,9 @@ var Syncl = function(args) {
             
             fis.util.copy(syspath.resolve('.'), syspath.join('../', command), null, excludeRegs);
         }
-
+        
         if( Object.keys(products).indexOf(command) >= 0 ){
-
+            
             paths.filter(function(path){
                 return includeReg.test(path);
             }).filter(function(path){
