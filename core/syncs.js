@@ -212,10 +212,6 @@ var updateFile = function(newContent, filePath, cb){
     });
 };
 
-
-
-
-
 var checkValid = function(response){
     return !/验证失败/.test(response);  
 };

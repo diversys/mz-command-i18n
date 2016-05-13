@@ -73,19 +73,14 @@ var copy = function(source, targets, p){
 };
 
 var Syncl = function(args) {
+
+    if( !/source$/.test(parentPath) ){
+        fis.log.warn('请进入语言路径进行操作!');
+        process.exit(0);
+    }
     
     fis.log.info('开始同步了骚年！');
     console.log();
-    
-    //var stopProcess = processX();
-    
-    //var i18nConfig;
-    
-    // try {
-    //     i18nConfig = JSON.parse(fs.readFileSync(config.i18nFile));  
-    // } catch(error) {
-    //     fis.log.error('谁？谁动了我的配置文件？');
-    // }
     
     
     var i18nConfig;
