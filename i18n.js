@@ -38,15 +38,15 @@ exports.register = function(commander) {
   
   switch ( cmd ) {
   case 'syncs': //sync server
-      Syncs();
+      Syncs(R.drop(2, i18n.input));
     break;
 
   case 'syncl': //sync loacl
-      Syncl(R.drop(2, i18n.input));
+      Syncl();
     break;
 
   case 'init': 
-    Init();
+      Init(R.drop(2, i18n.input));
     break;
 
   case 'edit':
