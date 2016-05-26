@@ -49,12 +49,13 @@ var runSync = function(input){
 
     var envKeys;
     try {
-        console.log('----------');
         envKeys = Object.keys(ppkg.fisConfig.api);
     } catch(err) {
-        fis.log.error(err);
-        fis.log.error('请检查 package.json 配置.');
+        
+        fis.log.warn('请检查 package.json api 配置.');
         process.exit(0);
+        
+        
     }
     
     
@@ -68,9 +69,10 @@ var runSync = function(input){
         syncsSync = ppkg.fisConfig.api[env].sync;
         sercetToken = ppkg.fisConfig.api[env].token;
         syncsDomain = ppkg.fisConfig.domain;
-    } catch(err) {
-        fis.log.error(err);
+    } catch (err) {
+        
         fis.log.error('请检查 package.json 配置.');
+        fis.log.error(err);
         process.exit(0);
     }
     
@@ -78,7 +80,7 @@ var runSync = function(input){
 };
 
 var timestamp;
-var buildTimestamp = () => {
+var buildTimestamp = function(){
     if( !timestamp ){
         timestamp = (+ new Date());
     }
