@@ -20,7 +20,6 @@ var Syncl = require('./core/syncl'),
  exports.usage = 'i18n <origin>';
  exports.desc = 'i18n';
 
-
 var config = require('./config');
 
 exports.register = function(commander) {
@@ -42,7 +41,7 @@ exports.register = function(commander) {
     break;
 
   case 'syncl': //sync loacl
-      Syncl();
+      Syncl(R.drop(2, i18n.input));
     break;
 
   case 'init': 

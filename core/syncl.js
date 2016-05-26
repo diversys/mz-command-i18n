@@ -24,11 +24,17 @@ var IGNORE_SOURCE_DIRS = ['i18n-php-server'];
 
 var R = require('fw-ramda');
 
+var removeItems = function(list, items){
+    var newList = Array.prototype.slice(list);
+    items.forEach(function(item){
+        var i = newList.indexOf(item);
+        newList.splice(i, i);
+    });
+    return newList;
+};
 
 var copy = function(source, targets, p){
-    
     var stat = fs.statSync(source);
-    
     if( stat.isDirectory() ){
         fs.readdir(source, function(err, paths){
             paths.forEach(function(path){
@@ -48,23 +54,17 @@ var copy = function(source, targets, p){
                 if( target.excludeRegs.every(function(e){
                     return !e.test(tpath);
                 }) ){
-
                     var ppath = R.dropLast(1, tpath.split('/')).join('/');
-
-
                     fse.ensureDir(ppath, function(err){
                         if( err ){
                             throw err;
                         }
-                        console.log(tpath);
                         fs.writeFile(tpath, data, function(err){
                             if( err ){
                                 throw err;
                             }
                         });
                     });
-                    
-
                 }
             });
             
@@ -82,24 +82,25 @@ var Syncl = function(args) {
     fis.log.info('开始同步了骚年！');
     console.log();
     
-    
     var i18nConfig;
     var commonConfig;
+    
     try {
         i18nConfig = JSON.parse(fs.readFileSync(CONFIG_FILE_NAME));
         commonConfig = JSON.parse(fs.readFileSync(COMMON_CONGIG_FILE_PATH));
     } catch (error) {
-        console.log('读取配置文件失败');
+        console.log('读取配置文件失败,请检查', CONFIG_FILE_NAME, COMMON_CONGIG_FILE_PATH);
         process.exit();
     }
-
+    
     var currentLanVersion = R.last(path.resolve('.').split('/')),
         currentPath = path.resolve('.');
+
+    //var productsInclude = commonConfig.product;
 
     if( i18nConfig.syncDir.exclude.indexOf(currentLanVersion) < 0 ){
         i18nConfig.syncDir.exclude.push(currentLanVersion);
     }
-
     
     var paths = fs.readdirSync('..').filter(function(path){
         return fs.lstatSync('../' + path).isDirectory();
@@ -109,34 +110,60 @@ var Syncl = function(args) {
 
     var products = commonConfig.product;
 
+    var productsNames = Object.keys(products);
+    
     var includeReg = globToRegExp(i18nConfig.syncDir.include);
+
+    var specRules = Object.keys(i18nConfig.specRule).reduce(function(res, keys){
+        if( keys.indexOf(',') ){
+            keys.split(',').forEach(function(key){
+                res[key] = i18nConfig.specRule[keys];
+            });
+        } else {
+            res[keys] = i18nConfig.specRule[keys];
+        }
+        return keys;
+    }, {});
+    console.log("specRules = ", specRules);
     
     if( args.length === 0 ){
+        // 默认的情况
         
         var spaths = paths.filter(function(path){
             return includeReg.test(path);
         }).filter(function(path){
             return i18nConfig.syncDir.exclude.indexOf(path) < 0;
         }).map(function(path){
-
             var exclude;
             
             if( i18nConfig.specRule[path] ){
                 var spec = i18nConfig.specRule[path];
                 var commonRule = commonConfig.rule[spec['useCommonRule']];
+                
                 if( !commonConfig ){
-                    fis.log.error('你用哪个 CommonRule ?');
-                    process.exit();
+                    exclude = commonConfig.rule['default'].exclude;
+                } else {
+                    exclude = R.concat(commonRule.exclude, spec.exclude);
                 }
-                exclude = R.concat(commonRule.exclude, spec.exclude);
-            } else {
-                exclude = commonConfig.rule['default'].exclude;
+
+                
+                var vproducts = i18nConfig.specRule[path].products;
+                if( !vproducts ){
+                    fis.log.error(path + ' 没有指定同步的产品!');
+                    process.exit(0);
+                } else {
+                    let excludeProducts = removeItems(productsNames, vproducts);
+                    excludeProducts.forEach(function(p){
+                        products[p].forEach((e) => {
+                            exclude.push(e);
+                        });
+                    });
+                }
             }
             
             var excludeRegs = exclude.map(function(e){
                 return globToRegExp(syspath.join(syspath.resolve('.'), e));
             });
-
             
             fis.util.copy(syspath.resolve('.'), syspath.join('../', path), null, excludeRegs);
         });
@@ -144,8 +171,8 @@ var Syncl = function(args) {
         
         
     } else if( args.length === 1 ){
-
-
+        // 只表达一个参数
+        
         var command = args[0];
 
         if( paths.indexOf(command) ){
@@ -153,14 +180,27 @@ var Syncl = function(args) {
             if( i18nConfig.specRule[command] ){
                 var spec = i18nConfig.specRule[command];
                 var commonRule = commonConfig.rule[spec['useCommonRule']];
+                
                 if( !commonConfig ){
-                    fis.log.error('你用哪个 CommonRule ?');
-                    process.exit();
+                    exclude = commonConfig.rule['default'].exclude;
+                } else {
+                    exclude = R.concat(commonRule.exclude, spec.exclude);
                 }
-                exclude = R.concat(commonRule.exclude, spec.exclude);
-            } else {
-                exclude = commonConfig.rule['default'].exclude;
+                
+                var vproducts = i18nConfig.specRule[path].products;
+                if( !vproducts ){
+                    fis.log.error(path + ' 没有指定同步的产品!');
+                    process.exit(0);
+                } else {
+                    let excludeProducts = removeItems(productsNames, vproducts);
+                    excludeProducts.forEach(function(p){
+                        products[p].forEach((e) => {
+                            exclude.push(e);
+                        });
+                    });
+                }
             }
+            
             var excludeRegs = exclude.map(function(e){
                 return globToRegExp(syspath.join(currentPath, e));
             });
@@ -169,13 +209,13 @@ var Syncl = function(args) {
         }
         
         if( Object.keys(products).indexOf(command) >= 0 ){
-            
+
             paths.filter(function(path){
                 return includeReg.test(path);
             }).filter(function(path){
                 return i18nConfig.syncDir.exclude.indexOf(path) < 0;
             }).map(function(path){
-
+                
                 var exclude;
                 
                 if( i18nConfig.specRule[path] ){
@@ -190,12 +230,11 @@ var Syncl = function(args) {
                     exclude = commonConfig.rule['default'].exclude;
                 }
                 
-                var excludeRegs = exclude.map(function(e){
+                var excludeRegs = exclude.map(function(e) {
                     return globToRegExp(syspath.join(syspath.resolve('.'), e));
                 });
-
-
-                var includeRegs = products[command].map(function(e){
+                
+                var includeRegs = products[command].map(function(e) {
                     return globToRegExp(syspath.join(syspath.resolve('.'), e));
                 });
                 
@@ -205,6 +244,7 @@ var Syncl = function(args) {
         }
         
     } else if( args.length === 2 ){
+        // 两个参数 lang + product
         
         var language = args[0],
             productName = args[1];
@@ -218,11 +258,6 @@ var Syncl = function(args) {
     } else {
         fis.log.error('参数不合法');
     }
-
-
-
-    
-    
     
     // var originPath = parentPath + '/' + i18nConfig.originName;
     // var currentPath = process.cwd();

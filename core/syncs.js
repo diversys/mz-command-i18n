@@ -1,3 +1,4 @@
+
 var http = require('http'),
     fs = require('fs'),
     //globToRegExp = require('glob-to-regexp'),
@@ -29,32 +30,64 @@ var runSync = function(input){
     }
 
     var rootPath = Util.getProjectRoot();
-    var ppkg = Util.readJSON(rootPath + '/package.json');
-      
+    var ppkg;
+    try {
+        ppkg = Util.readJSON(rootPath + '/package.json');
+    } catch(err) {
+        fis.log.error(err);
+        fis.log.error('请检查当前目录');
+        process.exit(0);
+    }
+    
+    
     if( input.length === 0 ){
         fis.log.warn('请指明 sqa 或者 prod!');
         process.exit(0);
     }
     
     var env = input[0];
+
+    var envKeys;
+    try {
+        console.log('----------');
+        envKeys = Object.keys(ppkg.fisConfig.api);
+    } catch(err) {
+        fis.log.error(err);
+        fis.log.error('请检查 package.json 配置.');
+        process.exit(0);
+    }
     
-    var envKeys = Object.keys(ppkg.fisConfig.api);
+    
     if( envKeys.indexOf(env) < 0 ){
         fis.log.warn('没有 ' + env + ' 这个环境!');
         process.exit(0);
     }
+
+    try {
+        syncsDownload = ppkg.fisConfig.api[env].download;
+        syncsSync = ppkg.fisConfig.api[env].sync;
+        sercetToken = ppkg.fisConfig.api[env].token;
+        syncsDomain = ppkg.fisConfig.domain;
+    } catch(err) {
+        fis.log.error(err);
+        fis.log.error('请检查 package.json 配置.');
+        process.exit(0);
+    }
     
-    syncsDownload = ppkg.fisConfig.api[env].download;
-    syncsSync = ppkg.fisConfig.api[env].sync;
-    sercetToken = ppkg.fisConfig.api[env].token;
-    syncsDomain = ppkg.fisConfig.domain;
     syncServer();
 };
 
-var getFileNeedSync = function(){
+var timestamp;
+var buildTimestamp = () => {
+    if( !timestamp ){
+        timestamp = (+ new Date());
+    }
+    return ++timestamp;
+};
 
+var getFileNeedSync = function() {
     return new Promise(function(resolve, reject){
-        var t = + new Date();
+        var t = buildTimestamp();
         var params = {
             email: getEmail(),
             domain: syncsDomain,
