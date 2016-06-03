@@ -1,6 +1,6 @@
 {
   "name": "mz-command-i18n",
-  "version": "2.5.3",
+  "version": "2.5.5",
   "description": "mz i18n",
   "main": "i18n.js",
   "scripts": {
@@ -50,7 +50,7 @@
   },
   "dist": {
     "shasum": "f76f0e2e0bf83f784e61f7369f8d76e19a9b2e22",
-    "tarball": "http://registry.npmjs.org/mz-command-i18n/-/mz-command-i18n-2.2.6.tgz"
+    "tarball": "http://registry.npmjs.org/mz-command-i18n/-/mz-command-i18n-2.5.5.tgz"
   },
   "maintainers": [
     {
@@ -60,9 +60,13 @@
     {
       "name": "abychan",
       "email": "abychan@outlook.com"
+    },
+    {
+      "name": "zhzhchwin",
+      "email": "576073927@qq.com"
     }
   ],
   "directories": {},
-  "_resolved": "https://registry.npmjs.org/mz-command-i18n/-/mz-command-i18n-2.2.6.tgz",
+  "_resolved": "https://registry.npmjs.org/mz-command-i18n/-/mz-command-i18n-2.5.5.tgz",
   "readme": "ERROR: No README data found!"
 }
