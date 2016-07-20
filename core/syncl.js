@@ -78,14 +78,18 @@ var Syncl = function(args) {
             argsItems = [arg];
         }
 
-        argsItems.forEach(function(argsItem) {
+        argsItems.some(function(argsItem) {
             if (countrys.indexOf(argsItem) !== -1) {
                 sCountrys.push(argsItem);
             } else if (productsNames.indexOf(argsItem) !== -1) {
                 product = argsItem;
             } else if (argsItem.toLowerCase() === 'init') {
                 isInit = true;
-            }            
+            } else {
+                fis.log.warn(argsItem + ' ，是什么？是产品名称吗？');
+                fis.log.warn('请先在配置 （' + COMMON_CONGIG_FILE_PATH + '） 中配置该产品'); process.exit();
+                return true;
+            }           
         });
     });
 
@@ -98,6 +102,9 @@ var Syncl = function(args) {
     sCountrys = sCountrys.filter(function(country) {
         return currentCountryConfig.excludeCountries.indexOf(country) === -1;
     });        
+    if (!sCountrys.length) {
+        fis.log.warn('请指定有效的国家！'); process.exit();
+    }
 
 
     inquirer.prompt([{
@@ -108,7 +115,7 @@ var Syncl = function(args) {
                 + (product ? '你要同步的产品是: ' + product + '\n' : '') 
                 + (product && isInit ? '这是第一次为该国家创建此产品。' + '\n' : '') + ('确定吗？')
 
-    }], function(answers) {
+    }], function(answers) { return;
         if (answers.ok) {
             syncGo();
         } else {
@@ -185,6 +192,7 @@ var Syncl = function(args) {
 
         fis.log.info('同步 ', productName, ' 到 ', country, ' ING...');
         isInit && fis.log.info('你指定了 init 参数，将为你第一次创建此产品');
+        console.log(includeRegs, excludesRegs);
         fis.util.copy(syspath.resolve('.'), syspath.join('../', country), includeRegs, excludesRegs);
         removeEmptyDir(syspath.join('../', country));
         fis.log.info('同步 ', productName, ' 到 ', country, ' DONE...');
