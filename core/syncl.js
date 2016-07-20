@@ -115,7 +115,7 @@ var Syncl = function(args) {
                 + (product ? '你要同步的产品是: ' + product + '\n' : '') 
                 + (product && isInit ? '这是第一次为该国家创建此产品。' + '\n' : '') + ('确定吗？')
 
-    }], function(answers) { return;
+    }], function(answers) { 
         if (answers.ok) {
             syncGo();
         } else {
@@ -192,7 +192,7 @@ var Syncl = function(args) {
 
         fis.log.info('同步 ', productName, ' 到 ', country, ' ING...');
         isInit && fis.log.info('你指定了 init 参数，将为你第一次创建此产品');
-        console.log(includeRegs, excludesRegs);
+        //console.log(includeRegs, excludesRegs);
         fis.util.copy(syspath.resolve('.'), syspath.join('../', country), includeRegs, excludesRegs);
         removeEmptyDir(syspath.join('../', country));
         fis.log.info('同步 ', productName, ' 到 ', country, ' DONE...');
