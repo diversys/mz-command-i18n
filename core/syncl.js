@@ -5,7 +5,6 @@ var syspath = require('path'),
     inquirer = require('inquirer');
 
 var parentPath = process.cwd().split('/').slice(0, -1).join('/'); // **/source
-var CONFIG_FILE_NAME = 'i18n.config.json';
 var COMMON_CONGIG_FILE_PATH = '../../lib/mz-i18n-conf.json';
 var IGNORE_SOURCE_DIRS = ['i18n-php-server'];
 

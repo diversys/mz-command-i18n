@@ -1,4 +1,3 @@
-
 var http = require('http'),
     fs = require('fs'),
     //globToRegExp = require('glob-to-regexp'),
@@ -186,7 +185,7 @@ var syncFile = function(fileurl, targetFilePath) {
     });
 };
 
-var syncServer = function(){
+var syncServer = function(){ //tellSyncDone('server-conf/cn.conf'); return;
 
 
     var pwd = process.cwd(),
@@ -195,7 +194,11 @@ var syncServer = function(){
     
     
     getFileNeedSync().then(function(filelist){
-        
+    //(new Promise(function(resolve, reject) {resolve();})).then(function(filelist){
+        /*var filelist = [ 'test/eg/page/products/pro6/summary.php',
+                  'test/eg/page/products/pro6/spec.php',
+                  'test/eg/page/legal.php' ];*/
+                  console.log(filelist);
 
         if( !filelist ){
             fis.log.info('这个版本没有需要同步的内容');

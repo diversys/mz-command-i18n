@@ -12,7 +12,6 @@ var fs = require('fs'),
 
 var Syncl = require('./core/syncl'),
     Syncs = require('./core/syncs'),
-    Edit = require('./core/edit'),
     Init = require('./core/init'),
     syncFile = require('./core/syncfile');
 
@@ -20,7 +19,6 @@ var Syncl = require('./core/syncl'),
  exports.usage = 'i18n <origin>';
  exports.desc = 'i18n';
 
-var config = require('./config');
 
 exports.register = function(commander) {
 
@@ -46,10 +44,6 @@ exports.register = function(commander) {
 
   case 'init': 
       Init(R.drop(2, i18n.input));
-    break;
-
-  case 'edit':
-    Edit();
     break;
 
   case 'syncfile'://文件同步，从其他国家同步某文件（夹）到当前国家，或当前-》其他or指定
@@ -91,7 +85,6 @@ var help = function(){
     '                HELPING YOU! MY SAO NIAN!        '.red,
     '',
     '                init             --   初始化'.rainbow,
-    '                edit             --   编辑_i18n'.rainbow,
     '                syncl            --   同步本地'.rainbow,
     '                syncs            --   同步线上'.rainbow,
     '                syncfile         --   国家之间同步文件'.rainbow,

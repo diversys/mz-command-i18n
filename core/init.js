@@ -143,8 +143,10 @@ var ask = function(){
         var toWriteAnswers = _.clone(answers, true);
         var excludes = [
             '**/products/**',
+            '**/*.po'
         ];
 
+        fis.log.info('稍等，初始化国家ing');
         fis.util.copy(targetPath, currentPath, null, excludes);
 
         // fis-conf
@@ -156,11 +158,17 @@ var ask = function(){
 
         fs.writeFileSync(
             commonPhpPath, 
-            commonText.replace(/([\'\"])i18n[\'\"]\s*\=>\s*[\'\"]\w+[\'\"]\,/,'$1i18n$1 => $1' + answers.lang + '$1,')
+            commonText
+                .replace(
+                    /([\'\"])i18n[\'\"]\s*\=>\s*[\'\"]\w+[\'\"]\,/,
+                    '$1i18n$1 => $1' + answers.lang + '$1,'
+                    )
+                .replace(new RegExp('/' + answers.originName + '/', 'g'), answers.urlprefix + '/')
         );
 
         // i18n
         fs.writeFileSync(i18nFilePath, JSON.stringify(toWriteAnswers, null, "  ") );
+        fis.log.info('恭喜，初始化国家完成');
     });
 };
 
