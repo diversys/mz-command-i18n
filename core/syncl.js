@@ -24,7 +24,7 @@ var removeItems = function(list, items) {
 // 同步命令入口
 var Syncl = function(args) {
     if (!/source$/.test(parentPath)) {
-        fis.log.warn('请进入语言路径进行操作!');
+        fis.log.warn('请先进入指定国家路径操作!');
         process.exit(0);
     }
 

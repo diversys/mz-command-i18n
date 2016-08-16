@@ -1,3 +1,4 @@
+
 var http = require('http'),
     fs = require('fs'),
     //globToRegExp = require('glob-to-regexp'),
@@ -24,7 +25,7 @@ var Syncs = function(input){
 var runSync = function(input){
     
     if( !/source$/.test(path.resolve(currentPath, '..')) ){
-        fis.log.warn('请进入语言路径进行操作!');
+        fis.log.warn('请先进入指定国家路径操作!');
         process.exit(0);
     }
 
@@ -194,14 +195,9 @@ var syncServer = function(){ //tellSyncDone('server-conf/cn.conf'); return;
     
     
     getFileNeedSync().then(function(filelist){
-    //(new Promise(function(resolve, reject) {resolve();})).then(function(filelist){
-        /*var filelist = [ 'test/eg/page/products/pro6/summary.php',
-                  'test/eg/page/products/pro6/spec.php',
-                  'test/eg/page/legal.php' ];*/
-                  console.log(filelist);
-
         if( !filelist ){
             fis.log.info('这个版本没有需要同步的内容');
+            return;
         }
         
         filelist.map(function(file){

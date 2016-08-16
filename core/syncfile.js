@@ -6,16 +6,17 @@ var path = require('path'),
     basePath, // 基本版本
     filePath, // 同步文件路径，基于基本路径
     toPaths, // 要拷贝到哪些目录
-   	isForce = false; // 强制一致，既同步之后各个参与同步的目录该文件（夹）将完全一样
+   	isForce = false, // 强制一致，既同步之后各个参与同步的目录该文件（夹）将完全一样
    	cwd = process.cwd(),
-   	parentDir = '../';
-   	currentDir = cwd.match(/[\/\\]\w+$/)[0].slice(1);
+   	parentDir = '../',
+   	currentDir;
 
 function init() {
    	if (!/source.[\w]{2,3}$/.test(process.cwd()) && isValidDir(currentDir)) {
-   		console.log('请先进入指定国家操作');
+   		console.log('请先进入指定国家路径操作!');
    		return;
    	}
+	currentDir = cwd.match(/[\/\\]\w+$/)[0].slice(1);
    	askSomeThing(currentDir, action);
 }
 
