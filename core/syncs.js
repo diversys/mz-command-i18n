@@ -99,7 +99,6 @@ var getFileNeedSync = function() {
         var url = syncsSync +  '?' + Object.keys(params).map(function(k){
             return k + '=' + params[k];
         }).join('&');
-        
         request.get({
             url: url
         }, function(err, httpResponse, body) {
@@ -115,7 +114,6 @@ var getFileNeedSync = function() {
             if( body.status != 200 ){
                 return reject(body.message);
             } else {
-
                 return resolve(body.result.list);
             }
         });
@@ -199,8 +197,7 @@ var syncServer = function(){ //tellSyncDone('server-conf/cn.conf'); return;
             fis.log.info('这个版本没有需要同步的内容');
             return;
         }
-        
-        filelist.map(function(file){
+        filelist.map(function(file){ 
             
             var a = file.split('/');
 
@@ -219,6 +216,10 @@ var syncServer = function(){ //tellSyncDone('server-conf/cn.conf'); return;
                 targeFilePath = _.drop(a, 2).join('/');
             }
             
+            if( a[0] === 'server-conf') {
+                targeFilePath = 'server.conf';
+            }
+
             if( targeFilePath ){
                 syncFile(file, targeFilePath).then(function(){
                     
@@ -229,7 +230,7 @@ var syncServer = function(){ //tellSyncDone('server-conf/cn.conf'); return;
         });
     }, function(err){
         fis.log.warn(err, '请检查环境变量 [MZ_FIS_EMAIL | MZ_FIS_MANAGE_SECRET]');
-    });
+    }).catch(function(e) {console.log(e.stack);});
 };
 
 
