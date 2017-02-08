@@ -193,7 +193,7 @@ var syncServer = function(){ //tellSyncDone('server-conf/cn.conf'); return;
     
     
     getFileNeedSync().then(function(filelist){
-        if( !filelist ){
+        if( !filelist.some(file=>file.indexOf(`/${namespace}/`) > -1) ){
             fis.log.info('这个版本没有需要同步的内容');
             return;
         }
