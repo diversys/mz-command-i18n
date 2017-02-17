@@ -1,75 +1,59 @@
-var syspath = require('path'),
-    globToRegExp = require('glob-to-regexp'),
-    walk = require('walk'),
-    fs = require('fs'),
-    inquirer = require('inquirer');
+const COMMON_CONGIG_FILE_PATH = '../../lib/mz-i18n-conf.json';
+const IGNORE_SOURCE_DIRS = ['i18n-php-server'];
 
-var parentPath = process.cwd().split('/').slice(0, -1).join('/'); // **/source
-var COMMON_CONGIG_FILE_PATH = '../../lib/mz-i18n-conf.json';
-var IGNORE_SOURCE_DIRS = ['i18n-php-server'];
+let path = require('path');
+let globToRegExp = require('glob-to-regexp');
+let walk = require('walk');
+let fs = require('fs');
+let inquirer = require('inquirer');
+let R = require('fw-ramda');
 
-var R = require('fw-ramda');
+let parentPath = process.cwd().split('/').slice(0, -1).join('/');
+
 
 // 从 list数组 中排除 items 数组中的项
-var removeItems = function(list, items) {
-    var newList = Array.prototype.slice.call(list);
+let removeItems = function(list, items) {
+    let newList = Array.prototype.slice.call(list);
     items.forEach(function(item) {
-        var i = newList.indexOf(item);
+        let i = newList.indexOf(item);
         newList.splice(i, i);
     });
     return newList;
 };
 
-
 // 同步命令入口
-var Syncl = function(args) {
+let Syncl = function() {
     if (!/source$/.test(parentPath)) {
         fis.log.warn('请先进入指定国家路径操作!');
         process.exit(0);
     }
 
     // 配置读取
-    var commonConfig; // 同步配置
+    let commonConfig; // 同步配置
 
     try {
         commonConfig = JSON.parse(fs.readFileSync(COMMON_CONGIG_FILE_PATH));
     } catch (error) {
         fis.log.warn('读取配置文件失败,请检查', COMMON_CONGIG_FILE_PATH);
         console.log(error);
-        process.exit();
+        process.exit(0);
     }
 
-
-    var currentCountry = R.last(syspath.resolve('.').split('/')), // 当前国家
-        currentCountryConfig = commonConfig.rule[currentCountry],
-        currentPath = syspath.resolve('.'); // 当前路径
-
-    if (!currentCountryConfig) {
-        fis.log.warn('该国家不能用于同步哦', COMMON_CONGIG_FILE_PATH); process.exit();
-    }
-
-    // 将当前国家添加到排除规则之外，避免自己同步自己
-    currentCountryConfig.excludeCountries = (currentCountryConfig.excludeCountries || []);
-    if (currentCountryConfig.excludeCountries.indexOf(currentCountry) < 0) {
-        currentCountryConfig.excludeCountries.push(currentCountry);
-    }
+    let currentCountry = R.last(path.resolve('.').split('/'));// 当前国家
 
     // 所有国家
-    var countrys = fs.readdirSync('..').filter(function(path) {
-        return fs.lstatSync('../' + path).isDirectory() && IGNORE_SOURCE_DIRS.indexOf(path) < 0;
+    let countrys = fs.readdirSync('..').filter(function(filename) {
+        return fs.lstatSync('../' + filename).isDirectory() && IGNORE_SOURCE_DIRS.indexOf(filename) < 0;
     });
 
-    var products = commonConfig.products; // 所有产品的匹配规则
-    var productsNames = Object.keys(products); // 所有产品名
-
-
-    var sCountrys = [],
-        product,
-        isInit;
+    let rulesNames = Object.keys(commonConfig.rules); // 所有规则名
+    let sCountrys = [],
+        rules=[],
+        isForce;
 
     // 参数分配
-    args.forEach(function(arg) {
-        var argsItems;
+    R.slice(4, Infinity, process.argv).forEach(function(arg) {
+        let argsItems;
 
         if (arg.indexOf(',') !== -1) {
             argsItems = arg.split(',');
@@ -80,29 +64,33 @@ var Syncl = function(args) {
         argsItems.some(function(argsItem) {
             if (countrys.indexOf(argsItem) !== -1) {
                 sCountrys.push(argsItem);
-            } else if (productsNames.indexOf(argsItem) !== -1) {
-                product = argsItem;
-            } else if (argsItem.toLowerCase() === 'init') {
-                isInit = true;
+            } else if (rulesNames.indexOf(argsItem) !== -1) {
+                rules.push(argsItem);
+            } else if (argsItem.toLowerCase() === '-f') {
+                isForce = true;
             } else {
-                fis.log.warn(argsItem + ' ，是什么？是产品名称吗？');
-                fis.log.warn('请先在配置 （' + COMMON_CONGIG_FILE_PATH + '） 中配置该产品'); process.exit();
+                fis.log.warn(`${argsItem} 是什么？是同步规则吗？`);
+                fis.log.warn(`如果是，请先在 ${COMMON_CONGIG_FILE_PATH} rules 选项中配置该同步规则`); 
+                process.exit();
                 return true;
             }           
         });
     });
 
-    isInit = product ? isInit : false;
+    isForce = rules ? isForce : false;
 
     if (!sCountrys.length) {
         sCountrys = countrys
     }
 
     sCountrys = sCountrys.filter(function(country) {
-        return currentCountryConfig.excludeCountries.indexOf(country) === -1;
+        return country !== currentCountry;
     });        
     if (!sCountrys.length) {
-        fis.log.warn('请指定有效的国家！'); process.exit();
+        fis.log.warn(`请指定除当前国家之外的有效国家！`); process.exit();
+    }
+    if (!rules.length) {
+        fis.log.warn(`请指定至少一条同步规则，规则在 ${COMMON_CONGIG_FILE_PATH} rules 选项中配置！`); process.exit();
     }
 
 
@@ -110,9 +98,10 @@ var Syncl = function(args) {
 
         type: 'confirm',
         name: 'ok',
-        message: ('\n' + '你要同步的国家是: ' + sCountrys.join(', ') + '\n') 
-                + (product ? '你要同步的产品是: ' + product + '\n' : '') 
-                + (product && isInit ? '这是第一次为该国家创建此产品。' + '\n' : '') + ('确定吗？')
+        message: `\n你要同步的国家是: ${sCountrys.join(', ')}\n` +
+                `你使用的同步规则是: ${rules.join(', ')}\n`+
+                `${isForce ? '你使用了 -f 参数，将忽略配置里的 exclude':''}\n` +
+                `确定吗？`
 
     }], function(answers) { 
         if (answers.ok) {
@@ -125,89 +114,55 @@ var Syncl = function(args) {
 
     function syncGo() {
         sCountrys.forEach(function(country) {
-            if (!product) {
-
-                // 同步国家
-                syncCountry(country);
-                return;
-
-            } else {
-                // 同步国家 下的该产品 product
-                syncCountryProducts(country, product, isInit);
-            }
-        });
-    }
-
-
-    // 获取排除规则
-    function getExcludeOfCountry() {
-        var excludesRegs;
-
-        // 排除
-        excludesRegs = R.concat(
-            commonConfig.rule['default'].exclude,
-            (currentCountryConfig.exclude || [])
-        );
-        excludesRegs = excludesRegs.map(function(e) {
-            return syspath.join(currentPath, e);
-        });
-        return excludesRegs;
-    }
-
-    // 同步某一个国家
-    function syncCountry(country) {
-        var excludesRegs = getExcludeOfCountry();
-
-        // 只同步产品之外文件 既公共文件
-        var excludeProducts = removeItems(productsNames, []);
-
-        excludeProducts.forEach(function(p) {
-            products[p].forEach(function(e) {
-                excludesRegs.push(syspath.join(currentPath, e));
+            rules.forEach((ruleName)=>{
+                console.log('\n');
+                fis.log.info(`正在使用同步规则 ${ruleName} 同步文件到 ${country}...`);
+                syncCountryByRule(
+                    country, 
+                    commonConfig.rules[ruleName], 
+                    isForce
+                );
+                fis.log.info(`使用同步规则 ${ruleName} 同步文件到到 ${country} 成功！`);
             });
         });
-
-        //console.log(excludesRegs); return;
-
-        fis.log.info('同步 ', country, ' ING...');
-        fis.util.copy(syspath.resolve('.'), syspath.join('../', country), null, excludesRegs);
-        removeEmptyDir(syspath.join('../', country));
-        fis.log.info('同步 ', country, ' DONE...');
     }
 
-    // 同步某个国家下面的产品，isInit 为真代表第一次同步
-    //（既忽略公共排除规则，图片，php也复制）
-    function syncCountryProducts(country, productName, isInit) {
-        if (!products[productName]) {
-            return fis.log.warn('你没有在 mz-i18n-conf.json 配置好 ', productName, ' 产品哦');
+    // 同步某个国家下面的产品
+    function syncCountryByRule(country, rule, isForce) {
+
+        let includeRegs;
+        let excludesRegs = [];
+
+        if (rule.include) {
+            // rule is object
+            includeRegs = rule.include; 
+            excludesRegs = rule.exclude || excludesRegs;
+        } else {
+            includeRegs = rule; // rule is array of include 
         }
 
-        var includeRegs = products[productName];
-        var excludesRegs;
-        // 排除
-        excludesRegs = isInit ? [] : getExcludeOfCountry();
+        includeRegs = (typeof includeRegs==='string' ? [includeRegs] : includeRegs);
+        excludesRegs = (typeof excludesRegs==='string' ? [excludesRegs] : excludesRegs);
 
-        //console.log(excludesRegs); return; 
+        if (!isForce) {
+            // isForce 为真代表忽略公共排除规则
+            excludesRegs = R.concat(excludesRegs, commonConfig.exclude);
+        }
 
-        fis.log.info('同步 ', productName, ' 到 ', country, ' ING...');
-        isInit && fis.log.info('你指定了 init 参数，将为你第一次创建此产品');
-        //console.log(includeRegs, excludesRegs);
-        fis.util.copy(syspath.resolve('.'), syspath.join('../', country), includeRegs, excludesRegs);
-        removeEmptyDir(syspath.join('../', country));
-        fis.log.info('同步 ', productName, ' 到 ', country, ' DONE...');
+        // console.log(includeRegs, excludesRegs); 
+        fis.util.copy(path.resolve('.'), path.join('../', country), includeRegs, excludesRegs);
+        removeEmptyDir(path.join('../', country));
     }
 };
 
-
 // 删除空目录
 function removeEmptyDir(dir) {
-    var fs = require('fs'),
-        path = require('path'),
+    let fs = require('fs'),
         fsUtils = require('nodejs-fs-utils'),
         fileList = fs.readdirSync(dir),
         empty = true;
 
-    var currentPath,
+    let currentPath,
         status;
 
 

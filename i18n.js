@@ -82,14 +82,12 @@ var gift = function() {
 var help = function() {
     var content = [
         '',
-        '                HELPING YOU! MY SAO NIAN!        '.red,
+        // '                HELPING YOU! MY SAO NIAN!        '.red,
         '',
-        '                init             --   初始化'.rainbow,
-        '                syncl            --   同步本地'.rainbow,
-        '                syncs            --   同步线上'.rainbow,
-        '                syncfile         --   国家之间同步文件'.rainbow,
-        '                help             --   i18n的救赎'.rainbow,
-        '                gift             --   送给骚年们的礼物'.rainbow,
+        '                init             --   初始化新的国家'.rainbow,
+        '                syncl            --   国家之间同步文件'.rainbow,
+        '                syncs            --   同步线上修改'.rainbow,
+        // '                syncfile         --   国家之间同步文件'.rainbow,
         ''
     ].join('\n');
     console.log(content);

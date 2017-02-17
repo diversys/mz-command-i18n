@@ -1,6 +1,6 @@
 {
   "name": "mz-command-i18n",
-  "version": "2.6.5",
+  "version": "2.7.0",
   "description": "mz i18n",
   "main": "i18n.js",
   "scripts": {
