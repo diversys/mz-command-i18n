@@ -13,6 +13,8 @@ var allVersion = [];
 var i18nFilePath = '_i18n.json';
 var fisConfPath = 'fis-conf.js';
 var commonPhpPath = 'test/common.php';
+var headerPhpPath = 'test/page/_partial/header.php';
+var footerPhpPath = 'test/page/_partial/footer.php';
 
 var parentPath = process.cwd().split('/').slice(0, -1).join('/'),
     currentPath = process.cwd(),
@@ -168,12 +170,20 @@ var ask = function(){
 
             // widget
             'widget/**',
-            '/*'
 
+            // root
+            'server.conf',
+            '_publist.ini'
+        ];
+        var excludes = [
+            '**/service/**'
         ];
 
         fis.log.info('稍等，初始化中...');
-        fis.util.copy(targetPath, currentPath, includes, null);
+        fis.util.copy(targetPath, currentPath, includes, excludes);
+
+        // publist.ini
+        fis.util.write('./_publist.ini', '');
 
         // lang
         fis.util.write(`lang/${answers.lang}.po`, '');
@@ -189,17 +199,29 @@ var ask = function(){
             commonPhpPath, 
             commonText
                 .replace(
-                    /([\'\"])i18n[\'\"]\s*\=>\s*[\'\"]\w+[\'\"]\,/,
+                    /([\'\"])i18n[\'\"]\s*\=>\s*[\'\"][\w\-]+[\'\"]\,/,
                     '$1i18n$1 => $1' + answers.lang + '$1,'
                     )
-                .replace(new RegExp('/' + answers.originName + '/', 'g'), answers.urlprefix + '/')
         );
+        replaceUrlPrefix(answers, commonPhpPath);
+
+        replaceUrlPrefix(answers, headerPhpPath);
+        replaceUrlPrefix(answers, footerPhpPath);
 
         // i18n
         fs.writeFileSync(i18nFilePath, JSON.stringify(toWriteAnswers, null, "  ") );
         fis.log.info('恭喜，初始化完成');
     });
 };
+
+var replaceUrlPrefix = function(answers, file) {
+    var fileContent = fs.readFileSync(file, 'utf-8');
+
+    fs.writeFileSync(
+        file, 
+        fileContent.replace(new RegExp('/' + answers.originName + '/', 'g'), answers.urlprefix + '/')
+    );
+}
 
 var rewriteFisConf = function(answers){
     var oldContent = fs.readFileSync(fisConfPath, 'utf-8');
