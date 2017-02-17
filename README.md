@@ -57,12 +57,12 @@ mz-i18n-config.json 配置说明
 #### 用法：
 进入某个国家文件夹，输入如下命令
 ```
-mz i18n syncl [country] <rule name> [-f] //(多个国家用 "," 隔开，不能带空格)
+mz i18n syncl [countrys] <rules> [-f]
 ```
 将当前国家的文件运用某（几）条，同步文件至某（几）个国家
 
 * country: 国家参数，可以同时输入多个国家。不输入国家则代表同步至所有其他国家
-* rule name: 必须，可以同时使用多条同步规则
+* rules: 必须，可以同时使用多条同步规则
 * -f: force 参数，使用此参数将会忽略 mz-i18n-config.json 中的公共排除配置 exclude
 
 #### 示例：
