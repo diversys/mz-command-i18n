@@ -1,6 +1,6 @@
 {
   "name": "mz-command-i18n",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "description": "mz i18n",
   "main": "i18n.js",
   "scripts": {
@@ -31,7 +31,6 @@
     "colors": "^1.1.2",
     "empty-dir": "^0.1.0",
     "filewalker": "^0.1.2",
-    "fis-lolcat": "^1.0.1",
     "fs-extra": "^0.30.0",
     "fw-ramda": "^0.1.1",
     "glob-to-regexp": "^0.1.0",

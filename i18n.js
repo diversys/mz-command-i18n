@@ -6,7 +6,6 @@
 
 var fs = require('fs'),
     colors = require('colors'),
-    lolcat = require('fis-lolcat'),
     meow = require('meow'),
     R = require('fw-ramda');
 
@@ -75,7 +74,7 @@ var gift = function() {
     var content = fs.readFileSync(__dirname + '/.sex.ascii', 'utf-8');
     console.log();
     console.log();
-    console.log(lolcat(content));
+    console.log(content);
     process.exit();
 };
 
